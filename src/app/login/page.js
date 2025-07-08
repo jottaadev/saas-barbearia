@@ -29,19 +29,19 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Agora, fazemos um pedido à nossa nova API para validar as credenciais
-      await axios.post('http://localhost:3333/api/store/login', { username, password });
+      // Usa a variável de ambiente para o endereço da API
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      await axios.post(`${apiUrl}/api/store/login`, { username, password });
 
-      // Se o pedido for bem-sucedido (status 200), continuamos
       if (remember) {
         localStorage.setItem('isStoreLoggedIn', 'true');
       }
       router.push('/painel/selecao-perfil');
 
     } catch (err) {
-      // Se a API devolver um erro (ex: 401 Unauthorized), mostramos a mensagem
       setError('Utilizador ou senha da estação inválidos.');
-      setIsLoading(false);
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -79,7 +79,7 @@ export default function LoginPage() {
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           <div>
             <button type="submit" disabled={isLoading} className="w-full flex justify-center items-center gap-2 font-bold bg-amber-500 text-zinc-950 py-3 px-8 rounded-full disabled:bg-zinc-700 disabled:cursor-not-allowed hover:bg-amber-400 transition-colors">
-              Entrar <LogIn size={20} />
+              {isLoading ? 'A entrar...' : 'Entrar'} <LogIn size={20} />
             </button>
           </div>
         </form>
