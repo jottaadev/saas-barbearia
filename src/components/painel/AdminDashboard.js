@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { DollarSign, Users, TrendingUp, AlertCircle, CalendarClock } from 'lucide-react';
+import { DollarSign, Users, TrendingUp, AlertCircle, CalendarClock, Scissors } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 const StatCard = ({ title, value, detail, icon: Icon, colorClass }) => (
@@ -28,10 +28,12 @@ export function AdminDashboard() {
     const token = sessionStorage.getItem('authToken');
     if (!token) return;
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
     const fetchStats = async () => {
       setIsLoading(prev => ({ ...prev, stats: true }));
       try {
-        const response = await axios.get('http://localhost:3333/api/admin/stats', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await axios.get(`${apiUrl}/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
         setStats(response.data);
         setError(prev => ({ ...prev, stats: '' }));
       } catch (err) {
@@ -44,7 +46,7 @@ export function AdminDashboard() {
     const fetchChartData = async () => {
       setIsLoading(prev => ({ ...prev, chart: true }));
       try {
-        const response = await axios.get(`http://localhost:3333/api/admin/charts/revenue?period=${chartPeriod}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await axios.get(`${apiUrl}/api/admin/charts/revenue?period=${chartPeriod}`, { headers: { 'Authorization': `Bearer ${token}` } });
         setChartData(response.data);
         setError(prev => ({ ...prev, chart: '' }));
       } catch (err) {
