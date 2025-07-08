@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LogIn, Loader } from 'lucide-react';
-import axios from 'axios'; // Importar o axios
+import axios from 'axios';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,7 +15,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Verifica se o login da loja está "salvo" ao carregar a página
   useEffect(() => {
     if (localStorage.getItem('isStoreLoggedIn') === 'true') {
       router.push('/painel/selecao-perfil');
@@ -24,33 +23,24 @@ export default function LoginPage() {
     }
   }, [router]);
 
-  // --- FUNÇÃO DE LOGIN ATUALIZADA ---
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      // O ideal é que este URL venha de uma variável de ambiente
-      const apiUrl = 'http://localhost:3333/api/auth/station-login';
+      // Agora, fazemos um pedido à nossa nova API para validar as credenciais
+      await axios.post('http://localhost:3333/api/store/login', { username, password });
 
-      // Envia as credenciais para o backend validar
-      await axios.post(apiUrl, {
-        username,
-        password,
-      });
-
-      // Se a chamada for bem-sucedida (status 200), o login é válido
+      // Se o pedido for bem-sucedido (status 200), continuamos
       if (remember) {
         localStorage.setItem('isStoreLoggedIn', 'true');
       }
       router.push('/painel/selecao-perfil');
 
     } catch (err) {
-      // Se o backend retornar um erro (ex: 401 Unauthorized), as credenciais estão erradas
-      setError(err.response?.data?.error || 'Utilizador ou senha da estação inválidos.');
-      
-    } finally {
+      // Se a API devolver um erro (ex: 401 Unauthorized), mostramos a mensagem
+      setError('Utilizador ou senha da estação inválidos.');
       setIsLoading(false);
     }
   };
@@ -68,12 +58,9 @@ export default function LoginPage() {
     <div className="bg-zinc-950 min-h-screen text-white font-sans flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <Link href="/">
-            <h1 className="font-display font-bold text-4xl text-amber-500">Barbearia Premium</h1>
-          </Link>
+          <Link href="/"><h1 className="font-display font-bold text-4xl text-amber-500">Barbearia Premium</h1></Link>
           <p className="font-sans text-zinc-400 mt-2">Acesso à Estação de Trabalho</p>
         </div>
-
         <form onSubmit={handleLogin} className="bg-zinc-900 border border-zinc-800 rounded-lg p-8 space-y-6">
           <div className="space-y-4">
             <div>
@@ -85,14 +72,11 @@ export default function LoginPage() {
               <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-500" />
             </div>
           </div>
-          
           <div className="flex items-center">
-              <input id="remember" name="remember" type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 rounded border-zinc-600 text-amber-500 focus:ring-amber-500 bg-zinc-700"/>
-              <label htmlFor="remember" className="ml-2 block text-sm text-zinc-400">Lembrar desta estação</label>
+            <input id="remember" name="remember" type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 rounded border-zinc-600 text-amber-500 focus:ring-amber-500 bg-zinc-700"/>
+            <label htmlFor="remember" className="ml-2 block text-sm text-zinc-400">Lembrar desta estação</label>
           </div>
-
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
           <div>
             <button type="submit" disabled={isLoading} className="w-full flex justify-center items-center gap-2 font-bold bg-amber-500 text-zinc-950 py-3 px-8 rounded-full disabled:bg-zinc-700 disabled:cursor-not-allowed hover:bg-amber-400 transition-colors">
               Entrar <LogIn size={20} />
