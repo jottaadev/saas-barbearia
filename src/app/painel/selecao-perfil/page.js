@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
-import { User, ShieldCheck, LogOut } from 'lucide-react';
+import { User, ShieldCheck, LogOut, Loader2 } from 'lucide-react';
 
 export default function ProfileSelectionPage() {
   const router = useRouter();
@@ -17,16 +17,21 @@ export default function ProfileSelectionPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
+    // Verifica se o login da estação foi feito
     if (typeof window !== 'undefined' && localStorage.getItem('isStoreLoggedIn') !== 'true') {
       router.push('/login');
       return;
     }
+    
     async function fetchProfiles() {
       try {
-        const response = await axios.get('http://localhost:3333/api/users/profiles');
+        // Usa a variável de ambiente para a URL da API
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await axios.get(`${apiUrl}/api/users/profiles`);
         setProfiles(response.data);
       } catch (err) {
-        setError("Não foi possível carregar os perfis. Verifique se o servidor backend está a correr.");
+        console.error("Erro detalhado ao buscar perfis:", err);
+        setError("Não foi possível carregar os perfis. Verifique a conexão com o backend.");
       } finally {
         setIsLoading(false);
       }
@@ -48,13 +53,14 @@ export default function ProfileSelectionPage() {
     setIsLoggingIn(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:3333/api/auth/profile-login', { userId: profile.id });
-      // --- ALTERAÇÃO AQUI: Guardamos no sessionStorage ---
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await axios.post(`${apiUrl}/api/auth/profile-login`, { userId: profile.id });
       sessionStorage.setItem('authToken', response.data.token);
       router.push('/painel');
     } catch (err) {
       setError(`Não foi possível fazer o login no perfil de ${profile.name}.`);
-      setIsLoggingIn(false);
+    } finally {
+        setIsLoggingIn(false);
     }
   };
 
@@ -64,16 +70,17 @@ export default function ProfileSelectionPage() {
     setIsLoggingIn(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:3333/api/auth/login', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await axios.post(`${apiUrl}/api/auth/login`, {
         username: selectedProfile.username,
         password: password,
       });
-      // --- ALTERAÇÃO AQUI: Guardamos no sessionStorage ---
       sessionStorage.setItem('authToken', response.data.token);
       router.push('/painel');
     } catch (err) {
       setError('Senha de administrador inválida.');
-      setIsLoggingIn(false);
+    } finally {
+        setIsLoggingIn(false);
     }
   };
   
@@ -84,7 +91,8 @@ export default function ProfileSelectionPage() {
 
   const renderProfileIcon = (profile) => {
     const Icon = profile.role === 'admin' ? ShieldCheck : User;
-    const imageUrl = profile.avatar_url ? `http://localhost:3333${profile.avatar_url}` : null;
+    // Usa a variável de ambiente para o URL da imagem
+    const imageUrl = profile.avatar_url ? `${process.env.NEXT_PUBLIC_API_URL}${profile.avatar_url}` : null;
     if (imageUrl) {
       return <img src={imageUrl} alt={profile.name} className="w-24 h-24 rounded-full object-cover" />;
     }
@@ -92,7 +100,7 @@ export default function ProfileSelectionPage() {
   };
 
   if (isLoading) {
-    return <div className="bg-zinc-950 min-h-screen flex items-center justify-center text-white">A carregar perfis...</div>;
+    return <div className="bg-zinc-950 min-h-screen flex items-center justify-center text-white"><Loader2 className="animate-spin mr-2"/> A carregar perfis...</div>;
   }
 
   return (
