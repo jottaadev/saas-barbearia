@@ -3,17 +3,14 @@
 
 export const dynamic = 'force-dynamic';
 
-// A correção principal está aqui: useCallback foi adicionado à importação.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, AlertCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { Sidebar } from '../../../components/painel/Sidebar';
+// --- CAMINHO CORRIGIDO AQUI ---
+import { Sidebar } from '@/components/painel/Sidebar';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 
-// O restante do arquivo permanece igual...
-
-// Modal para Adicionar/Editar Membro
 const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
   const [formData, setFormData] = useState({
     name: barber?.name || '',
@@ -104,6 +101,7 @@ const ConfirmationModal = ({ onConfirm, onCancel, isDeleting }) => (
         </div>
     </div>
 );
+
 
 export default function GerirEquipaPage() {
   const [user, setUser] = useState(null);

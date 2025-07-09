@@ -3,15 +3,17 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, AlertCircle, Scissors, Sparkle, Combine, Gem, Palette, Wind, Mustache, Utensils, Brush, Award } from 'lucide-react';
+import { Plus, Edit, Trash2, AlertCircle, Scissors, Sparkle, Combine, Gem, Palette, Wind, Beard, Utensils, Brush, Award } from 'lucide-react';
 // --- CAMINHO CORRIGIDO AQUI ---
-import { Sidebar } from '../../../components/painel/Sidebar';
+import { Sidebar } from '@/components/painel/Sidebar';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 const iconSuggestions = [
   { name: 'scissors', label: 'Tesoura', Icon: Scissors }, { name: 'sparkle', label: 'Brilho', Icon: Sparkle }, { name: 'combine', label: 'Combo', Icon: Combine },
-  { name: 'mustache', label: 'Bigode', Icon: Mustache }, { name: 'utensils', label: 'Navalha', Icon: Utensils }, { name: 'brush', label: 'Pincel', Icon: Brush },
+  { name: 'beard', label: 'Barba', Icon: Beard }, { name: 'utensils', label: 'Navalha', Icon: Utensils }, { name: 'brush', label: 'Pincel', Icon: Brush },
   { name: 'gem', label: 'Premium', Icon: Gem }, { name: 'award', label: 'Destaque', Icon: Award },
 ].filter(icon => icon.Icon);
 
@@ -163,7 +165,7 @@ export default function GerirServicosPage() {
   if (isLoading || !user) {
     return (
       <div className="bg-zinc-950 min-h-screen text-white flex">
-        <Sidebar user={user} />
+        {user && <Sidebar user={user} />}
         <main className="flex-1 p-8">
             <h1 className="font-display font-bold text-4xl text-white">A carregar...</h1>
         </main>
