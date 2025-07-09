@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, AlertCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Sidebar } from '../../../components/painel/Sidebar';
+export const dynamic = 'force-dynamic';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 
