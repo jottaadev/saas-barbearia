@@ -92,7 +92,7 @@ export default function GerirServicosPage() {
   const fetchServices = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/services');
+      const response = await axios.get('${apiUrl}/api/services');
       setServices(response.data);
     } catch (err) {
       setError('Não foi possível carregar os serviços.');
