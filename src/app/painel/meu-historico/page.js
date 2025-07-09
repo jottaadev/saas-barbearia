@@ -24,7 +24,7 @@ export default function MeuHistoricoPage() {
 
             const fetchHistory = async () => {
                 try {
-                    const response = await axios.get('${apiUrl}/api/barber/history', {
+                    const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/barber/history', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     setHistory(response.data);

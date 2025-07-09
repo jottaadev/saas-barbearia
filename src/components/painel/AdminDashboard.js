@@ -33,7 +33,7 @@ export function AdminDashboard() {
     const fetchStats = async () => {
       setIsLoading(prev => ({ ...prev, stats: true }));
       try {
-        const response = await axios.get(`${apiUrl}/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await axios.get(`https://backend-barber-5sbe.onrender.com/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } });
         setStats(response.data);
         setError(prev => ({ ...prev, stats: '' }));
       } catch (err) {
@@ -46,7 +46,7 @@ export function AdminDashboard() {
     const fetchChartData = async () => {
       setIsLoading(prev => ({ ...prev, chart: true }));
       try {
-        const response = await axios.get(`${apiUrl}/api/admin/charts/revenue?period=${chartPeriod}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await axios.get(`https://backend-barber-5sbe.onrender.com/api/admin/charts/revenue?period=${chartPeriod}`, { headers: { 'Authorization': `Bearer ${token}` } });
         setChartData(response.data);
         setError(prev => ({ ...prev, chart: '' }));
       } catch (err) {

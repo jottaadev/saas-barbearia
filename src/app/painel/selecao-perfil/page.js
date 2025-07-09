@@ -27,7 +27,7 @@ export default function ProfileSelectionPage() {
       try {
         // Usa a variável de ambiente para a URL da API
         const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        const response = await axios.get(`${apiUrl}/api/users/profiles`);
+        const response = await axios.get(`https://backend-barber-5sbe.onrender.com/api/users/profiles`);
         setProfiles(response.data);
       } catch (err) {
         console.error("Erro detalhado ao buscar perfis:", err);
@@ -54,7 +54,7 @@ export default function ProfileSelectionPage() {
     setError('');
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.post(`${apiUrl}/api/auth/profile-login`, { userId: profile.id });
+      const response = await axios.post(`https://backend-barber-5sbe.onrender.com/api/auth/profile-login`, { userId: profile.id });
       sessionStorage.setItem('authToken', response.data.token);
       router.push('/painel');
     } catch (err) {
@@ -71,7 +71,7 @@ export default function ProfileSelectionPage() {
     setError('');
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.post(`${apiUrl}/api/auth/login`, {
+      const response = await axios.post(`https://backend-barber-5sbe.onrender.com/api/auth/login`, {
         username: selectedProfile.username,
         password: password,
       });

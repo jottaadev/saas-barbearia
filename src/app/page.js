@@ -8,7 +8,7 @@ import axios from 'axios';
 // Função para buscar os serviços da API
 async function getServices() {
   try {
-    const response = await axios.get('${apiUrl}/api/services');
+    const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/services');
     return response.data;
   } catch (error) {
     console.error("ERRO AO BUSCAR SERVIÇOS:", error.message);
@@ -19,7 +19,7 @@ async function getServices() {
 // Função para buscar APENAS os barbeiros em destaque
 async function getFeaturedBarbers() {
   try {
-    const response = await axios.get('${apiUrl}/api/users/profiles');
+    const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/users/profiles');
     // Filtra a lista para pegar apenas os que são 'barber' e têm 'is_featured' como true
     return response.data.filter(p => p.role === 'barber' && p.is_featured);
   } catch (error) {
@@ -89,7 +89,7 @@ export default async function Home() {
                 <BarberCard 
                   key={barber.id}
                   // Usamos o caminho completo para a imagem, vinda do backend
-                  imageSrc={barber.avatar_url ? `${apiUrl}${barber.avatar_url}` : '/default-avatar.png'}
+                  imageSrc={barber.avatar_url ? `https://backend-barber-5sbe.onrender.com${barber.avatar_url}` : '/default-avatar.png'}
                   name={barber.name} 
                   specialty={barber.username} // Podemos criar um campo "specialty" no futuro
                 />

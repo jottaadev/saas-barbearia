@@ -28,7 +28,7 @@ export default function MeusHorariosPage() {
         setError('');
         try {
             const formattedDate = format(date, 'yyyy-MM-dd');
-            const response = await axios.get(`${apiUrl}/api/barber/schedule?date=${formattedDate}`, {
+            const response = await axios.get(`https://backend-barber-5sbe.onrender.com/api/barber/schedule?date=${formattedDate}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setDaySchedule(response.data);
@@ -42,7 +42,7 @@ export default function MeusHorariosPage() {
     const fetchAbsences = useCallback(async (token) => {
         setIsLoading(prev => ({...prev, absences: true}));
         try {
-            const response = await axios.get('${apiUrl}/api/barber/absences', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/barber/absences', { headers: { 'Authorization': `Bearer ${token}` } });
             setAbsences(response.data);
         } catch (err) {
              setError('Não foi possível carregar suas ausências.');
@@ -77,7 +77,7 @@ export default function MeusHorariosPage() {
             return;
         }
         const token = sessionStorage.getItem('authToken');
-        const promise = axios.post('${apiUrl}/api/barber/absences', {
+        const promise = axios.post('https://backend-barber-5sbe.onrender.com/api/barber/absences', {
             start_date: format(absenceRange.from, 'yyyy-MM-dd'),
             end_date: format(absenceRange.to, 'yyyy-MM-dd'),
         }, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -96,7 +96,7 @@ export default function MeusHorariosPage() {
     const handleDeleteAbsence = async (absenceId) => {
         if (!window.confirm("Tem a certeza que quer remover este período de ausência?")) return;
         const token = sessionStorage.getItem('authToken');
-        const promise = axios.delete(`${apiUrl}/api/barber/absences/${absenceId}`, { headers: { 'Authorization': `Bearer ${token}` }});
+        const promise = axios.delete(`https://backend-barber-5sbe.onrender.com/api/barber/absences/${absenceId}`, { headers: { 'Authorization': `Bearer ${token}` }});
 
         toast.promise(promise, {
             loading: 'A remover ausência...',
