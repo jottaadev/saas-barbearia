@@ -28,7 +28,7 @@ export default function MeusHorariosPage() {
         setError('');
         try {
             const formattedDate = format(date, 'yyyy-MM-dd');
-            const response = await axios.get(`https://backend-barber-5sbe.onrender.com//api/barber/schedule?date=${formattedDate}`, {
+            const response = await axios.get(`https://backend-barber-5sbe.onrender.com/api/barber/schedule?date=${formattedDate}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setDaySchedule(response.data);
@@ -42,7 +42,7 @@ export default function MeusHorariosPage() {
     const fetchAbsences = useCallback(async (token) => {
         setIsLoading(prev => ({...prev, absences: true}));
         try {
-            const response = await axios.get('https://backend-barber-5sbe.onrender.com//api/barber/absences', { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/barber/absences', { headers: { 'Authorization': `Bearer ${token}` } });
             setAbsences(response.data);
         } catch (err) {
              setError('Não foi possível carregar suas ausências.');
