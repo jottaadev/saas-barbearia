@@ -112,14 +112,14 @@ export default function MeusHorariosPage() {
         const promise = axios.post(`https://backend-barber-5sbe.onrender.com/api/barber/absences`, payload, { headers: { 'Authorization': `Bearer ${token}` } });
         
         toast.promise(promise, {
-            loading: 'A registar ausência...',
+            loading: 'A registrar ausência...',
             success: () => {
                 fetchAbsences(token);
                 // Reseta a seleção de datas no calendário
                 setAbsenceRange({ from: undefined, to: undefined }); 
                 return 'Ausência registada com sucesso!';
             },
-            error: (err) => err.response?.data?.error || 'Não foi possível registar a ausência.'
+            error: (err) => err.response?.data?.error || 'Não foi possível registrar a ausência.'
         });
     };
 
