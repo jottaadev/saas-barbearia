@@ -21,7 +21,7 @@ export function BarberDashboard() {
         setIsLoading(false); 
         return;
       }
-      const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/barber/my-appointments', {
+      const response = await axios.get('${apiUrl}/api/barber/my-appointments', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setAppointments(response.data);

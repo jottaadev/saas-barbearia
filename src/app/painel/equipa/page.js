@@ -45,7 +45,7 @@ const BarberModal = ({ barber, onClose, onSave, error }) => {
     onSave(data, !!barber);
   };
 
-  const previewUrl = avatarFile ? URL.createObjectURL(avatarFile) : (formData.avatar_url ? `https://backend-barber-5sbe.onrender.com${formData.avatar_url}` : null);
+  const previewUrl = avatarFile ? URL.createObjectURL(avatarFile) : (formData.avatar_url ? `${apiUrl}${formData.avatar_url}` : null);
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in">
@@ -98,7 +98,7 @@ export default function GerirEquipaPage() {
     setIsLoading(true);
     try {
       const token = sessionStorage.getItem('authToken');
-      const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/users/profiles', { headers: { 'Authorization': `Bearer ${token}` } });
+      const response = await axios.get('${apiUrl}/api/users/profiles', { headers: { 'Authorization': `Bearer ${token}` } });
       setTeam(response.data);
     } catch (err) {
       setError('Não foi possível carregar a equipe.');
@@ -121,7 +121,7 @@ export default function GerirEquipaPage() {
   const handleSaveBarber = async (formData, isEditing) => {
     const token = sessionStorage.getItem('authToken');
     const config = { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } };
-    const url = isEditing ? `https://backend-barber-5sbe.onrender.com/api/users/${editingBarber.id}` : 'https://backend-barber-5sbe.onrender.com/api/users';
+    const url = isEditing ? `${apiUrl}/api/users/${editingBarber.id}` : '${apiUrl}/api/users';
     const method = isEditing ? 'put' : 'post';
     try {
       await axios[method](url, formData, config);
@@ -138,7 +138,7 @@ export default function GerirEquipaPage() {
     if (window.confirm('Tem a certeza que quer apagar este membro da equipe?')) {
       const token = sessionStorage.getItem('authToken');
       try {
-        await axios.delete(`https://backend-barber-5sbe.onrender.com/api/users/${barberId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        await axios.delete(`${apiUrl}/api/users/${barberId}`, { headers: { 'Authorization': `Bearer ${token}` } });
         fetchTeam();
       } catch (err) {
         setError(err.response?.data?.error || 'Não foi possível apagar.');
@@ -178,7 +178,7 @@ export default function GerirEquipaPage() {
               {team.map(barber => (
                 <tr key={barber.id} className="border-t border-zinc-800 hover:bg-zinc-800/50">
                   <td className="p-4 font-medium text-white flex items-center gap-3">
-                    <img src={barber.avatar_url ? `https://backend-barber-5sbe.onrender.com${barber.avatar_url}` : '/default-avatar.png'} alt={barber.name} className="rounded-full object-cover w-10 h-10"/>
+                    <img src={barber.avatar_url ? `${apiUrl}${barber.avatar_url}` : '/default-avatar.png'} alt={barber.name} className="rounded-full object-cover w-10 h-10"/>
                     {barber.name}
                   </td>
                   <td className="p-4 text-zinc-300">{barber.username}</td>

@@ -15,7 +15,7 @@ const iconMap = {
 // Função para buscar os dados dos serviços da nossa API
 async function getServices() {
   try {
-    const response = await axios.get('http://localhost:3333/api/services');
+    const response = await axios.get('${apiUrl}/api/services');
     return response.data;
   } catch (error) {
     console.error("ERRO AO BUSCAR SERVIÇOS:", error.message);

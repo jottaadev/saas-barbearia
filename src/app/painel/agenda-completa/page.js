@@ -46,7 +46,7 @@ export default function AgendaCompletaPage() {
         status: filters.status,
       };
 
-      const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/admin/appointments', {
+      const response = await axios.get('${apiUrl}/api/admin/appointments', {
         headers: { 'Authorization': `Bearer ${token}` },
         params: params,
       });
@@ -67,7 +67,7 @@ export default function AgendaCompletaPage() {
       setUser(decodedUser);
       
       const fetchBarbers = async () => {
-        const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/users/profiles', {
+        const response = await axios.get('${apiUrl}/api/users/profiles', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setAllBarbers(response.data);

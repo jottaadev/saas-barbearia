@@ -55,8 +55,8 @@ export default function RelatoriosPage() {
                 setIsLoading(prev => ({...prev, reports: true}));
                 try {
                     const [performanceResponse, barbersResponse] = await Promise.all([
-                        axios.get('https://backend-barber-5sbe.onrender.com/api/admin/reports/performance', { headers: { 'Authorization': `Bearer ${token}` } }),
-                        axios.get('https://backend-barber-5sbe.onrender.com/api/users/profiles', { headers: { 'Authorization': `Bearer ${token}` } })
+                        axios.get('${apiUrl}/api/admin/reports/performance', { headers: { 'Authorization': `Bearer ${token}` } }),
+                        axios.get('${apiUrl}/api/users/profiles', { headers: { 'Authorization': `Bearer ${token}` } })
                     ]);
                     setReportData(performanceResponse.data);
                     setAllBarbers(barbersResponse.data);
@@ -85,7 +85,7 @@ export default function RelatoriosPage() {
                     barberId: filters.barberId,
                     status: filters.status,
                 };
-                const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/admin/appointments', {
+                const response = await axios.get('${apiUrl}/api/admin/appointments', {
                     headers: { 'Authorization': `Bearer ${token}` },
                     params: params,
                 });
