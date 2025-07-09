@@ -1,127 +1,49 @@
-// src/app/page.js
-import { ServiceCard } from '@/components/ServiceCard';
-import { BarberCard } from '@/components/BarberCard';
-import { Footer } from '@/components/Footer';
-import { ArrowDown } from 'lucide-react';
-import Link from 'next/link';
+// src/app/painel/page.js
+'use client';
 
-// --- FUNÇÕES DE BUSCA DE DADOS CORRIGIDAS ---
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
+// --- CAMINHO CORRIGIDO AQUI ---
+import { Sidebar } from '@/components/painel/Sidebar';
+import { AdminDashboard } from '@/components/painel/AdminDashboard';
+import { BarberDashboard } from '@/components/painel/BarberDashboard';
 
-// Função para buscar os serviços usando fetch e desativando o cache
-async function getServices() {
-  try {
-    const response = await fetch('https://backend-barber-5sbe.onrender.com/api/services', {
-      cache: 'no-store' // Garante que os dados sejam sempre os mais recentes
-    });
-    if (!response.ok) {
-        throw new Error('Falha ao buscar serviços');
+export default function PainelPage() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('authToken');
+    if (!token) {
+      router.push('/painel/selecao-perfil');
+      return;
     }
-    return response.json();
-  } catch (error) {
-    console.error("ERRO AO BUSCAR SERVIÇOS:", error.message);
-    return [];
-  }
-}
-
-// Função para buscar os barbeiros usando fetch e desativando o cache
-async function getFeaturedBarbers() {
-  try {
-    const response = await fetch('https://backend-barber-5sbe.onrender.com/api/users/profiles', {
-        cache: 'no-store' // Garante que os dados sejam sempre os mais recentes
-    });
-    if (!response.ok) {
-        throw new Error('Falha ao buscar perfis');
+    try {
+      const decodedUser = jwtDecode(token);
+      setUser(decodedUser);
+    } catch (error) {
+      sessionStorage.removeItem('authToken');
+      router.push('/painel/selecao-perfil');
+    } finally {
+      setIsLoading(false);
     }
-    const profiles = await response.json();
-    return profiles.filter(p => p.role === 'barber' && p.is_featured);
-  } catch (error) {
-    console.error("ERRO AO BUSCAR BARBEIROS EM DESTAQUE:", error.message);
-    return [];
-  }
-}
+  }, [router]);
 
-// Componente da Landing Page
-export default async function Home() {
-  const allServices = await getServices();
-  const featuredBarbers = await getFeaturedBarbers();
-  
-  const featuredServices = allServices.slice(0, 3);
+  if (isLoading || !user) {
+    return <div className="bg-zinc-950 min-h-screen flex items-center justify-center text-white">A verificar autenticação...</div>;
+  }
 
   return (
-    <main className="font-sans bg-black text-white min-h-screen flex-col items-center">
-      
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 hero-bg hero-gradient">
-        <div className="relative z-10 flex flex-col items-center gap-5" style={{ animation: 'hero-text-fade-in 1s 0.2s ease-out forwards', opacity: 0 }}>
-          <span className="font-display text-amber-400 uppercase tracking-widest text-sm">Desde 2024</span>
-          <h1 className="font-display font-bold text-5xl sm:text-7xl md:text-8xl text-white uppercase tracking-tighter">
-            Estilo & Precisão
-          </h1>
-          <p className="text-lg md:text-xl text-zinc-300 max-w-2xl font-light">
-            Onde a tradição encontra a modernidade. A sua barbearia de confiança para um visual impecável.
-          </p>
-          <a href="/agendamento" className="shine-button mt-6 font-bold bg-amber-500 text-black py-4 px-12 rounded-full hover:bg-amber-400 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-amber-500/25">
-            AGENDAR HORÁRIO
-          </a>
+    <div className="bg-zinc-950 min-h-screen text-white flex font-sans">
+      <Sidebar user={user} />
+      <main className="flex-1 p-8 overflow-y-auto">
+        <div className="animate-fade-in">
+          {user.role === 'admin' && <AdminDashboard />}
+          {user.role === 'barber' && <BarberDashboard />}
         </div>
-        <div className="absolute bottom-10 z-10 animate-bounce">
-            <ArrowDown className="text-zinc-500" />
-        </div>
-      </section>
-
-      <section id="servicos" className="py-28 px-6 bg-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 animate-slide-up-fade-in">
-            <h2 className="font-display font-bold text-4xl sm:text-5xl text-white">Serviços Exclusivos</h2>
-            <p className="text-zinc-400 mt-4 max-w-xl mx-auto">
-              Do clássico ao contemporâneo, cada serviço é executado com mestria para superar as suas expectativas.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredServices.map((service, index) => (
-              <div key={service.id} className="animate-slide-up-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
-                  <ServiceCard service={service} />
-              </div>
-            ))}
-          </div>
-          
-          {allServices.length > 3 && (
-            <div className="text-center mt-16 animate-slide-up-fade-in" style={{ animationDelay: `${3 * 150}ms` }}>
-              <Link href="/servicos" className="font-bold border border-zinc-700 text-zinc-300 py-3 px-10 rounded-full hover:bg-zinc-900 hover:border-amber-500 hover:text-amber-400 transition-all duration-300">
-                Ver todos os serviços
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section id="equipe" className="py-28 px-6 bg-zinc-950">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 animate-slide-up-fade-in">
-            <h2 className="font-display font-bold text-4xl sm:text-5xl text-white">Nossos Artistas</h2>
-            <p className="text-zinc-400 mt-4 max-w-xl mx-auto">
-              Profissionais apaixonados pela arte da barbearia, prontos para criar o seu visual perfeito.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredBarbers.length > 0 ? (
-              featuredBarbers.map((barber, index) => (
-                <div key={barber.id} className="animate-slide-up-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
-                  <BarberCard 
-                    imageSrc={barber.avatar_url ? `https://backend-barber-5sbe.onrender.com${barber.avatar_url}` : '/default-avatar.png'}
-                    name={barber.name} 
-                    specialty={barber.role === 'admin' ? 'Fundador' : 'Barbeiro Especialista'}
-                  />
-                </div>
-              ))
-            ) : (
-              <p className="text-zinc-500 col-span-3 text-center">A nossa equipa de destaque será apresentada aqui em breve.</p>
-            )}
-          </div>
-        </div>
-      </section>
-      
-      {/* O resto do seu arquivo (seção de localização) e o Footer permanecem aqui... */}
-      <Footer />
-    </main>
+      </main>
+    </div>
   );
 }
