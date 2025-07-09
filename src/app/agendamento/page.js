@@ -34,7 +34,7 @@ const Step1 = ({ formData, updateFormData, services, barbers }) => (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {barbers.map(barber => (
           <button key={barber.id} onClick={() => updateFormData({ barber, date: null, time: null })} className={`p-4 border-2 rounded-lg text-center flex flex-col items-center gap-2 transition-colors ${formData.barber?.id === barber.id ? 'border-amber-500 bg-amber-500/10' : 'border-zinc-800 hover:border-zinc-700'}`}>
-            <img src={barber.avatar_url ? `http://localhost:3333${barber.avatar_url}` : '/default-avatar.png'} alt={barber.name} className="rounded-full object-cover w-20 h-20"/>
+            <img src={barber.avatar_url ? `https://backend-barber-5sbe.onrender.com${barber.avatar_url}` : '/default-avatar.png'} alt={barber.name} className="rounded-full object-cover w-20 h-20"/>
             <p className="font-bold text-white mt-2">{barber.name}</p>
           </button>
         ))}
@@ -121,8 +121,8 @@ function AgendamentoComponent() {
     async function fetchInitialData() {
       try {
         const [servicesResponse, profilesResponse] = await Promise.all([
-            axios.get('http://localhost:3333/api/services'),
-            axios.get('http://localhost:3333/api/users/profiles')
+            axios.get('https://backend-barber-5sbe.onrender.com/api/services'),
+            axios.get('https://backend-barber-5sbe.onrender.com/api/users/profiles')
         ]);
         const allServices = servicesResponse.data;
         setServices(allServices);
@@ -149,7 +149,7 @@ function AgendamentoComponent() {
         setAvailableSlots([]); // Limpa os horários antigos enquanto busca os novos
         try {
           const formattedDate = format(formData.date, 'yyyy-MM-dd');
-          const response = await axios.get(`http://localhost:3333/api/public/availability`, {
+          const response = await axios.get(`https://backend-barber-5sbe.onrender.com/api/public/availability`, {
             params: { barberId: formData.barber.id, date: formattedDate }
           });
           setAvailableSlots(response.data);
@@ -185,7 +185,7 @@ function AgendamentoComponent() {
         clientName: formData.clientName, clientPhone: formData.clientPhone,
         appointmentTime: date.toISOString(),
       };
-      await axios.post('http://localhost:3333/api/appointments', appointmentData);
+      await axios.post('https://backend-barber-5sbe.onrender.com/api/appointments', appointmentData);
       const params = new URLSearchParams({
         servico: formData.service.name, barbeiro: formData.barber.name,
         data: formData.date.toISOString().split('T')[0], hora: formData.time,

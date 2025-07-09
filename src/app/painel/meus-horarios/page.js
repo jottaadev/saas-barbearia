@@ -77,7 +77,7 @@ export default function MeusHorariosPage() {
             return;
         }
         const token = sessionStorage.getItem('authToken');
-        const promise = axios.post('http://localhost:3333/api/barber/absences', {
+        const promise = axios.post('https://backend-barber-5sbe.onrender.com/api/barber/absences', {
             start_date: format(absenceRange.from, 'yyyy-MM-dd'),
             end_date: format(absenceRange.to, 'yyyy-MM-dd'),
         }, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -96,7 +96,7 @@ export default function MeusHorariosPage() {
     const handleDeleteAbsence = async (absenceId) => {
         if (!window.confirm("Tem a certeza que quer remover este período de ausência?")) return;
         const token = sessionStorage.getItem('authToken');
-        const promise = axios.delete(`http://localhost:3333/api/barber/absences/${absenceId}`, { headers: { 'Authorization': `Bearer ${token}` }});
+        const promise = axios.delete(`https://backend-barber-5sbe.onrender.com/api/barber/absences/${absenceId}`, { headers: { 'Authorization': `Bearer ${token}` }});
 
         toast.promise(promise, {
             loading: 'A remover ausência...',

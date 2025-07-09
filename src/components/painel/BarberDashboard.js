@@ -21,7 +21,7 @@ export function BarberDashboard() {
         setIsLoading(false); 
         return;
       }
-      const response = await axios.get('http://localhost:3333/api/barber/my-appointments', {
+      const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/barber/my-appointments', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setAppointments(response.data);
@@ -42,7 +42,7 @@ export function BarberDashboard() {
 
     try {
       const token = sessionStorage.getItem('authToken');
-      await axios.put(`http://localhost:3333/api/appointments/${appointmentId}/status`, 
+      await axios.put(`https://backend-barber-5sbe.onrender.com/api/appointments/${appointmentId}/status`, 
         { status: newStatus },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
