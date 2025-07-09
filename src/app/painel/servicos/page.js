@@ -92,7 +92,7 @@ export default function GerirServicosPage() {
   const fetchServices = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('http://localhost:3333/api/services');
+      const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/services');
       setServices(response.data);
     } catch (err) {
       setError('Não foi possível carregar os serviços.');
@@ -125,8 +125,8 @@ export default function GerirServicosPage() {
     const token = sessionStorage.getItem('authToken');
     const config = { headers: { 'Authorization': `Bearer ${token}` } };
     const url = editingService
-      ? `http://localhost:3333/api/services/${editingService.id}`
-      : 'http://localhost:3333/api/services';
+      ? `https://backend-barber-5sbe.onrender.com/api/services/${editingService.id}`
+      : 'https://backend-barber-5sbe.onrender.com/api/services';
     const method = editingService ? 'put' : 'post';
 
     try {
@@ -144,7 +144,7 @@ export default function GerirServicosPage() {
     if (window.confirm('Tem a certeza que quer apagar este serviço?')) {
       const token = sessionStorage.getItem('authToken');
       try {
-        await axios.delete(`http://localhost:3333/api/services/${serviceId}`, {
+        await axios.delete(`https://backend-barber-5sbe.onrender.com/api/services/${serviceId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         fetchServices();
