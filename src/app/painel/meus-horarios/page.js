@@ -10,7 +10,7 @@ import { DayPicker } from 'react-day-picker';
 import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
 import 'react-day-picker/dist/style.css';
-import { Calendar, Clock, Lock, Unlock, AlertCircle, Loader2, Plane, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Lock, Unlock, AlertCircle, Loader2, Plane, Trash2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function MeusHorariosPage() {
@@ -69,10 +69,34 @@ export default function MeusHorariosPage() {
         }
     }, [user, selectedDate, fetchDaySchedule]);
 
-    const handleSlotClick = async (slot) => { /* ... (código sem alterações) ... */ };
+    const handleSlotClick = async (slot) => {
+        const token = sessionStorage.getItem('authToken');
+        const action = slot.status === 'Disponível' ? 'block' : (slot.status === 'Bloqueado' ? 'unblock' : null);
+        if (!action) return;
+
+        const originalSchedule = [...daySchedule];
+        setDaySchedule(currentSchedule => currentSchedule.map(s => s.time === slot.time ? {...s, status: 'processando'} : s));
+        
+        try {
+            if (action === 'block') {
+                await axios.post('https://backend-barber-5sbe.onrender.com/api/barber/block-slot', { slot_time: slot.time }, { headers: { 'Authorization': `Bearer ${token}` }});
+                toast.success('Horário bloqueado!');
+            } else {
+                await axios.delete('https://backend-barber-5sbe.onrender.com/api/barber/unblock-slot', { 
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    data: { slot_time: slot.time }
+                });
+                toast.success('Horário desbloqueado!');
+            }
+            fetchDaySchedule(selectedDate, token);
+        } catch (err) {
+            toast.error('Ocorreu um erro.');
+            setDaySchedule(originalSchedule);
+        }
+    };
 
     const handleAddAbsence = async () => {
-        if (!absenceRange.from || !absenceRange.to) {
+        if (!absenceRange?.from || !absenceRange?.to) {
             toast.error("Por favor, selecione um período de início e fim.");
             return;
         }
@@ -86,6 +110,7 @@ export default function MeusHorariosPage() {
             loading: 'A registar ausência...',
             success: () => {
                 fetchAbsences(token);
+                fetchDaySchedule(selectedDate, token); // Atualiza a agenda do dia, caso esteja dentro do período
                 setAbsenceRange({ from: undefined, to: undefined });
                 return 'Ausência registada com sucesso!';
             },
@@ -102,6 +127,7 @@ export default function MeusHorariosPage() {
             loading: 'A remover ausência...',
             success: () => {
                 fetchAbsences(token);
+                fetchDaySchedule(selectedDate, token);
                 return 'Ausência removida com sucesso!';
             },
             error: 'Não foi possível remover a ausência.'
@@ -122,7 +148,7 @@ export default function MeusHorariosPage() {
 
                     {/* Secção de Ausências */}
                     <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-                        <h2 className="font-display font-bold text-2xl text-white mb-4">Registar Período de Ausência</h2>
+                        <h2 className="font-display font-bold text-2xl text-white mb-4">Registar Período de Ausência (Férias)</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-zinc-400 mb-2">Selecione o período (início e fim):</label>
@@ -133,11 +159,11 @@ export default function MeusHorariosPage() {
                             </button>
                         </div>
                         <div className="mt-6 pt-4 border-t border-zinc-800">
-                            <h3 className="font-bold text-white mb-2">Períodos Registados:</h3>
+                            <h3 className="font-bold text-white mb-2">Períodos de Ausência Registados:</h3>
                             <div className="space-y-2">
-                                {absences.map(abs => (
+                                {isLoading.absences ? <p className="text-zinc-400">A carregar...</p> : absences.map(abs => (
                                     <div key={abs.id} className="flex justify-between items-center bg-zinc-800 p-2 rounded-md">
-                                        <p>{format(new Date(abs.start_date), 'dd/MM/yy')} até {format(new Date(abs.end_date), 'dd/MM/yy')}</p>
+                                        <p>{format(new Date(abs.start_date), 'dd/MM/yyyy')} até {format(new Date(abs.end_date), 'dd/MM/yyyy')}</p>
                                         <button onClick={() => handleDeleteAbsence(abs.id)} className="p-1 text-red-500 hover:text-red-400"><Trash2 size={16}/></button>
                                     </div>
                                 ))}
@@ -148,13 +174,38 @@ export default function MeusHorariosPage() {
                     {/* Secção da Agenda Diária */}
                     <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
                         <h2 className="font-display font-bold text-2xl text-white mb-4">
-                            Agenda de {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
+                            Gerir Horários de {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
                         </h2>
                         {isLoading.schedule ? <div className="flex justify-center py-10"><Loader2 className="animate-spin text-amber-500" size={32}/></div> : 
-                         error && !daySchedule.length ? <div className="text-red-500 flex items-center gap-2"><AlertCircle size={16}/>{error}</div> : (
+                         error ? <div className="text-red-500 flex items-center gap-2"><AlertCircle size={16}/>{error}</div> : (
                             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
                                 {daySchedule.length > 0 ? daySchedule.map(slot => {
-                                    // ... (o JSX do slot continua o mesmo) ...
+                                    const isAvailable = slot.status === 'Disponível';
+                                    const isBlocked = slot.status === 'Bloqueado';
+                                    const isBooked = slot.status === 'Agendado';
+                                    const isProcessing = slot.status === 'processando';
+                                    
+                                    const slotClasses = isBooked ? 'bg-red-900/50 text-red-400 cursor-not-allowed' :
+                                                                isBlocked ? 'bg-zinc-700 text-zinc-400 hover:bg-zinc-600' :
+                                                                isAvailable ? 'bg-green-900/50 text-green-400 hover:bg-green-800/50' :
+                                                                'opacity-50';
+
+                                    return (
+                                        <button 
+                                            key={slot.time}
+                                            onClick={() => handleSlotClick(slot)}
+                                            disabled={isBooked || isProcessing}
+                                            className={`p-3 rounded-md flex flex-col items-center justify-center text-center transition-all ${slotClasses}`}
+                                        >
+                                            <p className="font-bold text-xl text-white">{new Date(slot.time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                                            <div className="flex items-center gap-1 text-xs mt-1">
+                                                {isAvailable && <Unlock size={12}/>}
+                                                {isBlocked && <Lock size={12}/>}
+                                                {isBooked && <CalendarIcon size={12}/>}
+                                                {isProcessing ? <Loader2 className="animate-spin" size={12}/> : slot.status}
+                                            </div>
+                                        </button>
+                                    );
                                 }) : <p className="text-zinc-500 text-center col-span-full py-10">Este é um dia de folga.</p>}
                             </div>
                         )}
