@@ -3,41 +3,42 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, AlertCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Sidebar } from '../../../components/painel/Sidebar';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 
-const BarberModal = ({ barber, onClose, onSave, error }) => {
+// Modal para Adicionar/Editar Membro
+const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
   const [formData, setFormData] = useState({
     name: barber?.name || '',
     username: barber?.username || '',
     role: barber?.role || 'barber',
     avatar_url: barber?.avatar_url || '',
     password: '',
-    is_featured: barber?.is_featured || false, // Novo campo de estado
+    is_featured: barber?.is_featured || false,
   });
   const [avatarFile, setAvatarFile] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleFileChange = (e) => {
-    setAvatarFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      setAvatarFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-      if (key === 'password' && (formData.role !== 'admin' || !formData.password)) return;
-      data.append(key, formData[key]);
+        // Não anexa a senha se for edição e o campo estiver vazio
+        if (key === 'password' && barber && !formData.password) return;
+        data.append(key, formData[key]);
     });
     if (avatarFile) {
       data.append('avatar', avatarFile);
@@ -48,17 +49,16 @@ const BarberModal = ({ barber, onClose, onSave, error }) => {
   const previewUrl = avatarFile ? URL.createObjectURL(avatarFile) : (formData.avatar_url ? `https://backend-barber-5sbe.onrender.com${formData.avatar_url}` : null);
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-lg w-full max-w-md relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white">&times;</button>
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in" onClick={onClose}>
+      <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-lg w-full max-w-md relative" onClick={(e) => e.stopPropagation()}>
         <h2 className="font-display font-bold text-2xl text-white mb-6">{barber ? 'Editar Membro' : 'Adicionar Membro'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className="w-24 h-24 bg-zinc-800 rounded-full flex items-center justify-center overflow-hidden">
+            <div className="w-24 h-24 bg-zinc-800 rounded-full flex items-center justify-center overflow-hidden border-2 border-zinc-700">
               {previewUrl ? <img src={previewUrl} alt="Preview" className="object-cover w-full h-full"/> : <ImageIcon className="text-zinc-600" size={40}/>}
             </div>
-            <button type="button" onClick={() => fileInputRef.current.click()} className="flex-1 p-3 bg-zinc-700 rounded-lg text-center font-bold hover:bg-zinc-600">Escolher Foto</button>
-            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden"/>
+            <button type="button" onClick={() => fileInputRef.current.click()} className="flex-1 p-3 bg-zinc-700 rounded-lg text-center font-bold hover:bg-zinc-600 transition-colors">Escolher Foto</button>
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*"/>
           </div>
           <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Nome Completo" required className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg"/>
           <input type="text" name="username" value={formData.username} onChange={handleChange} placeholder="Nome de Utilizador" required className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg"/>
@@ -76,7 +76,9 @@ const BarberModal = ({ barber, onClose, onSave, error }) => {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={onClose} className="py-2 px-6 rounded-lg bg-zinc-700 hover:bg-zinc-600 font-bold">Cancelar</button>
-            <button type="submit" className="py-2 px-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold">Salvar</button>
+            <button type="submit" disabled={isSaving} className="py-2 px-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold flex items-center gap-2 disabled:bg-zinc-600">
+                {isSaving ? <><Loader2 className="animate-spin" size={16}/> Salvando...</> : 'Salvar'}
+            </button>
           </div>
         </form>
       </div>
@@ -84,20 +86,39 @@ const BarberModal = ({ barber, onClose, onSave, error }) => {
   );
 };
 
+// Modal de Confirmação para Apagar
+const ConfirmationModal = ({ onConfirm, onCancel, isDeleting }) => (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in">
+        <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-lg w-full max-w-sm text-center">
+            <h2 className="font-display font-bold text-xl text-white mb-2">Tem a certeza?</h2>
+            <p className="font-sans text-zinc-400 mb-6">Esta ação não pode ser desfeita. O membro será permanentemente apagado.</p>
+            <div className="flex gap-4">
+                <button onClick={onCancel} className="w-full py-3 rounded-lg bg-zinc-700 hover:bg-zinc-600 font-bold">Cancelar</button>
+                <button onClick={onConfirm} disabled={isDeleting} className="w-full py-3 rounded-lg bg-red-600 text-white font-bold hover:bg-red-500 flex items-center justify-center gap-2 disabled:bg-red-800">
+                    {isDeleting ? <><Loader2 className="animate-spin" size={16}/> Apagando...</> : 'Sim, apagar'}
+                </button>
+            </div>
+        </div>
+    </div>
+);
+
+
 export default function GerirEquipaPage() {
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState('');
   const [modalError, setModalError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBarber, setEditingBarber] = useState(null);
+  const [deletingBarberId, setDeletingBarberId] = useState(null);
   const router = useRouter();
 
-  const fetchTeam = async () => {
+  const fetchTeam = useCallback(async (token) => {
     setIsLoading(true);
     try {
-      const token = sessionStorage.getItem('authToken');
       const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/users/profiles', { headers: { 'Authorization': `Bearer ${token}` } });
       setTeam(response.data);
     } catch (err) {
@@ -105,7 +126,7 @@ export default function GerirEquipaPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
   
   useEffect(() => {
     const token = sessionStorage.getItem('authToken');
@@ -114,11 +135,13 @@ export default function GerirEquipaPage() {
       const decodedUser = jwtDecode(token);
       if (decodedUser.role !== 'admin') { router.push('/painel'); return; }
       setUser(decodedUser);
-      fetchTeam();
+      fetchTeam(token);
     } catch (error) { router.push('/painel/selecao-perfil'); }
-  }, [router]);
+  }, [router, fetchTeam]);
 
   const handleSaveBarber = async (formData, isEditing) => {
+    setIsSaving(true);
+    setModalError('');
     const token = sessionStorage.getItem('authToken');
     const config = { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } };
     const url = isEditing ? `https://backend-barber-5sbe.onrender.com/api/users/${editingBarber.id}` : 'https://backend-barber-5sbe.onrender.com/api/users';
@@ -127,22 +150,26 @@ export default function GerirEquipaPage() {
       await axios[method](url, formData, config);
       setIsModalOpen(false);
       setEditingBarber(null);
-      fetchTeam();
-      setModalError('');
+      fetchTeam(token);
     } catch (err) {
       setModalError(err.response?.data?.error || 'Não foi possível salvar.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleDeleteBarber = async (barberId) => {
-    if (window.confirm('Tem a certeza que quer apagar este membro da equipe?')) {
-      const token = sessionStorage.getItem('authToken');
-      try {
-        await axios.delete(`https://backend-barber-5sbe.onrender.com/api/users/${barberId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-        fetchTeam();
-      } catch (err) {
-        setError(err.response?.data?.error || 'Não foi possível apagar.');
-      }
+  const handleDeleteBarber = async () => {
+    setIsDeleting(true);
+    setError('');
+    const token = sessionStorage.getItem('authToken');
+    try {
+      await axios.delete(`https://backend-barber-5sbe.onrender.com/api/users/${deletingBarberId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      fetchTeam(token);
+      setDeletingBarberId(null); // Fecha o modal de confirmação
+    } catch (err) {
+      setError(err.response?.data?.error || 'Não foi possível apagar.');
+    } finally {
+        setIsDeleting(false);
     }
   };
   
@@ -151,6 +178,10 @@ export default function GerirEquipaPage() {
     setIsModalOpen(true);
     setModalError('');
   };
+
+  const handleOpenDeleteConfirmation = (barberId) => {
+      setDeletingBarberId(barberId);
+  }
 
   if (!user) return <div className="bg-zinc-950 min-h-screen flex items-center justify-center text-white">A verificar...</div>;
 
@@ -185,7 +216,7 @@ export default function GerirEquipaPage() {
                   <td className="p-4"><span className={`px-2 py-1 text-xs font-bold rounded-full ${barber.role === 'admin' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>{barber.role === 'admin' ? 'Admin' : 'Barbeiro'}</span></td>
                   <td className="p-4 flex justify-end gap-2">
                     <button onClick={() => handleOpenModal(barber)} className="px-3 py-1 text-sm font-bold text-blue-400 hover:bg-blue-900/50 rounded-md">Editar</button>
-                    <button onClick={() => handleDeleteBarber(barber.id)} className="px-3 py-1 text-sm font-bold text-red-500 hover:bg-red-900/50 rounded-md">Apagar</button>
+                    <button onClick={() => handleOpenDeleteConfirmation(barber.id)} className="px-3 py-1 text-sm font-bold text-red-500 hover:bg-red-900/50 rounded-md">Apagar</button>
                   </td>
                 </tr>
               ))}
@@ -193,7 +224,8 @@ export default function GerirEquipaPage() {
           </table>
         </div>
       </main>
-      {isModalOpen && <BarberModal barber={editingBarber} onClose={() => setIsModalOpen(false)} onSave={handleSaveBarber} error={modalError} />}
+      {isModalOpen && <BarberModal barber={editingBarber} onClose={() => setIsModalOpen(false)} onSave={handleSaveBarber} error={modalError} isSaving={isSaving}/>}
+      {deletingBarberId && <ConfirmationModal onConfirm={handleDeleteBarber} onCancel={() => setDeletingBarberId(null)} isDeleting={isDeleting}/>}
     </div>
   );
 }

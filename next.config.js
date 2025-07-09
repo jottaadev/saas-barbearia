@@ -1,8 +1,12 @@
-/** @type {import('next').NextConfig} */
+// next.config.js
 const nextConfig = {
-  // Configuração para permitir imagens do seu backend
   images: {
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'backend-barber-5sbe.onrender.com', // Adicionar hostname de produção
+        pathname: '/uploads/**',
+      },
       {
         protocol: 'http',
         hostname: 'localhost',
@@ -12,5 +16,3 @@ const nextConfig = {
     ],
   },
 };
-
-module.exports = nextConfig;
