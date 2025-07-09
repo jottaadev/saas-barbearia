@@ -3,8 +3,8 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+// CORREÇÃO: Trocado 'Mustache' por 'Beard'
 import { Plus, Edit, Trash2, AlertCircle, Scissors, Sparkle, Combine, Gem, Palette, Wind, Beard, Utensils, Brush, Award } from 'lucide-react';
-// --- CAMINHO CORRIGIDO AQUI ---
 import { Sidebar } from '@/components/painel/Sidebar';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
@@ -13,10 +13,12 @@ export const dynamic = 'force-dynamic';
 
 const iconSuggestions = [
   { name: 'scissors', label: 'Tesoura', Icon: Scissors }, { name: 'sparkle', label: 'Brilho', Icon: Sparkle }, { name: 'combine', label: 'Combo', Icon: Combine },
-  { name: 'beard', label: 'Barba', Icon: Beard }, { name: 'utensils', label: 'Navalha', Icon: Utensils }, { name: 'brush', label: 'Pincel', Icon: Brush },
+  { name: 'beard', label: 'Barba', Icon: Beard }, // CORREÇÃO AQUI
+  { name: 'utensils', label: 'Navalha', Icon: Utensils }, { name: 'brush', label: 'Pincel', Icon: Brush },
   { name: 'gem', label: 'Premium', Icon: Gem }, { name: 'award', label: 'Destaque', Icon: Award },
 ].filter(icon => icon.Icon);
 
+// ... (o resto do arquivo, que já estava correto, permanece aqui)
 const ServiceModal = ({ service, onClose, onSave, error }) => {
   const [formData, setFormData] = useState({
     name: service?.name || '',
