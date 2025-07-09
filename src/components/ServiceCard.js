@@ -1,13 +1,13 @@
 // src/components/ServiceCard.js
 'use client';
 
-import { Scissors, Sparkle, Combine, Gem, Palette, Wind, Mustache, Utensils, Brush, Award, ArrowRight } from 'lucide-react';
+import { Scissors, Sparkle, Combine, Gem, Palette, Wind, Beard, Utensils, Brush, Award, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 const iconMap = {
   scissors: Scissors, sparkle: Sparkle, combine: Combine, gem: Gem,
-  palette: Palette, wind: Wind, mustache: Mustache, utensils: Utensils,
-  brush: Brush, award: Award,
+  palette: Palette, wind: Wind, beard: Beard, // Ícone corrigido aqui
+  utensils: Utensils, brush: Brush, award: Award,
 };
 
 export function ServiceCard({ service }) {

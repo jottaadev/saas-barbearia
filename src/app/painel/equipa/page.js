@@ -1,13 +1,17 @@
 // src/app/painel/equipa/page.js
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+export const dynamic = 'force-dynamic';
+
+// A correção principal está aqui: useCallback foi adicionado à importação.
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, AlertCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Sidebar } from '../../../components/painel/Sidebar';
-export const dynamic = 'force-dynamic';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+
+// O restante do arquivo permanece igual...
 
 // Modal para Adicionar/Editar Membro
 const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
@@ -37,7 +41,6 @@ const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
     e.preventDefault();
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-        // Não anexa a senha se for edição e o campo estiver vazio
         if (key === 'password' && barber && !formData.password) return;
         data.append(key, formData[key]);
     });
@@ -87,7 +90,6 @@ const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
   );
 };
 
-// Modal de Confirmação para Apagar
 const ConfirmationModal = ({ onConfirm, onCancel, isDeleting }) => (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in">
         <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-lg w-full max-w-sm text-center">
@@ -102,7 +104,6 @@ const ConfirmationModal = ({ onConfirm, onCancel, isDeleting }) => (
         </div>
     </div>
 );
-
 
 export default function GerirEquipaPage() {
   const [user, setUser] = useState(null);
@@ -166,7 +167,7 @@ export default function GerirEquipaPage() {
     try {
       await axios.delete(`https://backend-barber-5sbe.onrender.com/api/users/${deletingBarberId}`, { headers: { 'Authorization': `Bearer ${token}` } });
       fetchTeam(token);
-      setDeletingBarberId(null); // Fecha o modal de confirmação
+      setDeletingBarberId(null);
     } catch (err) {
       setError(err.response?.data?.error || 'Não foi possível apagar.');
     } finally {
