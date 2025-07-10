@@ -2,10 +2,10 @@
 import { ServiceCard } from '@/components/ServiceCard';
 import { BarberCard } from '@/components/BarberCard';
 import { Footer } from '@/components/Footer';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, Clock, MapPin, MessageCircle } from 'lucide-react'; // Ícones importados
 import Link from 'next/link';
 import { headers } from 'next/headers';
-import { getStrapiURL } from '@/lib/utils'; // 1. Importar o nosso novo helper
+import { getStrapiURL } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +42,6 @@ export default async function Home() {
   return (
     <main className="font-sans bg-black text-white min-h-screen flex-col items-center">
       
-      {/* Seção Hero */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 hero-bg hero-gradient">
         <div className="relative z-10 flex flex-col items-center gap-5" style={{ animation: 'hero-text-fade-in 1s 0.2s ease-out forwards', opacity: 0 }}>
           <span className="font-display text-amber-400 uppercase tracking-widest text-sm">Desde 2024</span>
@@ -61,7 +60,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Seção Serviços */}
       <section id="servicos" className="py-28 px-6 bg-black">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 animate-slide-up-fade-in">
@@ -87,7 +85,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Seção Equipe */}
       <section id="equipe" className="py-28 px-6 bg-zinc-950">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 animate-slide-up-fade-in">
@@ -101,7 +98,6 @@ export default async function Home() {
               featuredBarbers.map((barber, index) => (
                 <div key={barber.id} className="animate-slide-up-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
                   <BarberCard 
-                    // 2. Usar o helper para construir a URL da imagem
                     imageSrc={getStrapiURL(barber.avatar_url) || '/default-avatar.png'}
                     name={barber.name} 
                     specialty={barber.role === 'admin' ? 'Fundador' : 'Barbeiro Especialista'}
@@ -115,6 +111,60 @@ export default async function Home() {
         </div>
       </section>
       
+      {/* ===== SECÇÃO DE LOCALIZAÇÃO RESTAURADA E ESTILIZADA ===== */}
+      <section id="localizacao" className="py-28 px-6 bg-black">
+        <div className="max-w-5xl mx-auto animate-slide-up-fade-in">
+            <div className="text-center mb-16">
+                <h2 className="font-display font-bold text-4xl sm:text-5xl text-white">Onde Estamos</h2>
+                <p className="text-zinc-400 mt-4 max-w-xl mx-auto">
+                    Um ambiente moderno e confortável, projetado para si relaxar enquanto cuidamos do seu estilo.
+                </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+                <div className="lg:col-span-3 h-80 lg:h-[500px]">
+                  <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.279237581513!2d-46.65657158440695!3d-23.55883736761524!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59d5b0337d87%3A0x5de06e5f0f38b1f3!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1678886543210!5m2!1spt-BR!2sbr"
+                    width="100%" 
+                    height="100%" 
+                    style={{ border:0 }} 
+                    allowFullScreen="" 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Localização da Barbearia">
+                  </iframe>
+                </div>
+                <div className="lg:col-span-2 p-8 lg:p-10 flex flex-col justify-center space-y-8 bg-black/50">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <Clock className="text-amber-500" size={20} />
+                      <h3 className="font-display font-bold text-xl text-white">Horários</h3>
+                    </div>
+                    <div className="pl-8 text-zinc-300 text-sm space-y-1">
+                      <p>Terça a Sábado: 09:00 - 19:00</p>
+                      <p>Domingo: 09:00 - 12:00</p>
+                      <p>Segunda-feira: <span className="font-bold text-red-500">Fechado</span></p>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <MapPin className="text-amber-500" size={20} />
+                      <h3 className="font-display font-bold text-xl text-white">Endereço</h3>
+                    </div>
+                    <p className="pl-8 text-zinc-300 text-sm">Av. Paulista, 1234 - São Paulo, SP</p>
+                  </div>
+                   <div className="pt-4">
+                        <a 
+                          href="https://wa.me/5511987654321" target="_blank" rel="noopener noreferrer"
+                          className="w-full inline-flex items-center justify-center gap-3 font-bold bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-500 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <MessageCircle size={20} /> Entrar em Contacto
+                        </a>
+                   </div>
+                </div>
+            </div>
+        </div>
+      </section>
+
       <Footer />
     </main>
   );
