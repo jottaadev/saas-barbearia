@@ -5,13 +5,15 @@ import { Footer } from '@/components/Footer';
 import { ArrowDown, Clock, MapPin, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { headers } from 'next/headers';
-import { getStrapiURL } from '@/lib/utils';
 
+// Não precisamos mais do utils.js
+// export const dynamic = 'force-dynamic' é mantido para evitar cache
 export const dynamic = 'force-dynamic';
 
 async function getServices() {
   try {
-    const response = await fetch(getStrapiURL('/api/services'), { cache: 'no-store' });
+    // Usando a URL completa diretamente, como antes
+    const response = await fetch('https://backend-barber-5sbe.onrender.com/api/services', { cache: 'no-store' });
     if (!response.ok) throw new Error('Falha ao buscar serviços');
     return await response.json();
   } catch (error) {
@@ -20,9 +22,9 @@ async function getServices() {
   }
 }
 
-async function getFeaturedBarbers() {
+async function getBarbers() {
   try {
-    const response = await fetch(getStrapiURL('/api/users/profiles'), { cache: 'no-store' });
+    const response = await fetch('https://backend-barber-5sbe.onrender.com/api/users/profiles', { cache: 'no-store' });
     if (!response.ok) throw new Error('Falha ao buscar perfis');
     return await response.json();
   } catch (error) {
@@ -35,8 +37,7 @@ export default async function Home() {
   headers(); 
   
   const allServices = await getServices();
-  // Corrigido para aguardar a resolução da promise
-  const allBarbers = await getFeaturedBarbers(); 
+  const allBarbers = await getBarbers(); 
   
   const featuredBarbers = allBarbers.filter(p => p.role === 'barber' && p.is_featured);
   const featuredServices = allServices.slice(0, 3);
@@ -100,7 +101,10 @@ export default async function Home() {
               featuredBarbers.map((barber, index) => (
                 <div key={barber.id} className="animate-slide-up-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
                   <BarberCard 
-                    imageSrc={getStrapiURL(barber.avatar_url) || '/default-avatar.png'}
+                    // ===== A CORREÇÃO ESTÁ AQUI =====
+                    // Verificamos se 'barber.avatar_url' existe. Se sim, montamos a URL.
+                    // Se não, passamos a imagem padrão.
+                    imageSrc={barber.avatar_url ? `https://backend-barber-5sbe.onrender.com${barber.avatar_url}` : '/default-avatar.png'}
                     name={barber.name} 
                     specialty={barber.role === 'admin' ? 'Fundador' : 'Barbeiro Especialista'}
                   />
@@ -124,7 +128,7 @@ export default async function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
                 <div className="lg:col-span-3 h-80 lg:h-[500px]">
                   <iframe 
-                    src="http://googleusercontent.com/maps.google.com/8"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.197574883467!2d-46.65882238493442!3d-23.5613393675464!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2c97763!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1678886567654!5m2!1spt-BR!2sbr0"
                     width="100%" 
                     height="100%" 
                     style={{ border:0 }} 
