@@ -2,12 +2,13 @@
 'use client';
 
 // Ícone correto é 'Beard'
-import { Scissors, Sparkle, Combine, Gem, Palette, Wind, Beard, Utensils, Brush, Award, ArrowRight } from 'lucide-react';
+import { Scissors, Sparkle, Combine, Gem, Palette, Wind, UserCircle, Utensils, Brush, Award, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 const iconMap = {
   scissors: Scissors, sparkle: Sparkle, combine: Combine, gem: Gem,
-  palette: Palette, wind: Wind, beard: Beard, // Usando o nome correto
+  palette: Palette, wind: Wind,
+  beard: UserCircle, // Correção: O ícone 'Beard' não existe, mas 'UserCircle' é usado em outro lugar para isso.
   utensils: Utensils, brush: Brush, award: Award,
 };
 
