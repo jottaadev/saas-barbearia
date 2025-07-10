@@ -1,9 +1,9 @@
 // src/app/painel/meu-historico/page.js
-'use client'; // <-- ESTA É A CORREÇÃO
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Sidebar } from '@/components/painel/Sidebar'; // Caminho corrigido para o alias
+import { Sidebar } from '@/components/painel/Sidebar';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import { History, AlertCircle } from 'lucide-react';
@@ -47,7 +47,7 @@ export default function MeuHistoricoPage() {
     return (
         <div className="bg-zinc-950 min-h-screen text-white flex font-sans">
             <Sidebar user={user} />
-            <main className="flex-1 p-8">
+            <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
                 <h1 className="font-display font-bold text-4xl text-white mb-8">Meu Histórico de Atendimentos</h1>
 
                 {isLoading && <p>A carregar histórico...</p>}

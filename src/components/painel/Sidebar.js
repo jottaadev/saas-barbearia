@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { LayoutDashboard, Scissors, Users, Calendar, LogOut, BarChart3, Clock, History, X, Menu } from 'lucide-react';
 
 export function Sidebar({ user }) {
-  const [isOpen, setIsOpen] = useState(false); // A sidebar agora controla o seu próprio estado
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -19,7 +19,7 @@ export function Sidebar({ user }) {
   const adminLinks = [
     { href: '/painel', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/painel/servicos', label: 'Serviços', icon: Scissors },
-    { href: '/painel/equipa', label: 'Equipe', icon: Users },
+    { href: '/painel/equipa', label: 'Equipa', icon: Users },
     { href: '/painel/agenda-completa', label: 'Agenda Completa', icon: Calendar },
     { href: '/painel/relatorios', label: 'Relatórios', icon: BarChart3 },
   ];
@@ -32,9 +32,14 @@ export function Sidebar({ user }) {
 
   const links = user?.role === 'admin' ? adminLinks : barberLinks;
 
+  const handleLinkClick = () => {
+    if (window.innerWidth < 768) {
+      setIsOpen(false);
+    }
+  };
+
   return (
     <>
-      {/* Botão de Menu Flutuante para Mobile */}
       <button
         onClick={() => setIsOpen(true)}
         className="md:hidden p-2 fixed top-4 left-4 z-20 bg-zinc-900 rounded-md border border-zinc-800"
@@ -43,7 +48,6 @@ export function Sidebar({ user }) {
         <Menu className="text-white" />
       </button>
 
-      {/* Overlay que cobre a página quando o menu está aberto em mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-30 md:hidden"
@@ -51,7 +55,6 @@ export function Sidebar({ user }) {
         ></div>
       )}
 
-      {/* A Sidebar em si */}
       <aside
         className={`w-64 bg-zinc-900 p-6 flex flex-col border-r border-zinc-800 
                    fixed top-0 left-0 h-full z-40 transition-transform duration-300 ease-in-out
@@ -71,7 +74,7 @@ export function Sidebar({ user }) {
           {links.map(link => {
             const isActive = pathname === link.href;
             return (
-              <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className={`flex items-center gap-3 rounded-md px-3 py-2.5 font-sans font-medium text-zinc-300 transition-all hover:text-white hover:bg-zinc-800 ${isActive ? 'bg-amber-500/10 text-amber-400' : ''}`}>
+              <Link key={link.href} href={link.href} onClick={handleLinkClick} className={`flex items-center gap-3 rounded-md px-3 py-2.5 font-sans font-medium text-zinc-300 transition-all hover:text-white hover:bg-zinc-800 ${isActive ? 'bg-amber-500/10 text-amber-400' : ''}`}>
                 <link.icon className="h-5 w-5" />
                 <span>{link.label}</span>
               </Link>

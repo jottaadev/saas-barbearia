@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import { Sidebar } from '@/components/painel/Sidebar';
-import { PainelLayout } from '@/components/painel/PainelLayout'; // Importe o novo Layout
 import { AdminDashboard } from '@/components/painel/AdminDashboard';
 import { BarberDashboard } from '@/components/painel/BarberDashboard';
 
@@ -35,13 +34,15 @@ export default function PainelPage() {
     return <div className="bg-zinc-950 min-h-screen flex items-center justify-center text-white">A verificar autenticação...</div>;
   }
 
-  // Agora usamos o PainelLayout para envolver o conteúdo da página
   return (
-    <PainelLayout user={user}>
-      <div className="animate-fade-in">
-        {user.role === 'admin' && <AdminDashboard />}
-        {user.role === 'barber' && <BarberDashboard />}
-      </div>
-    </PainelLayout>
+    <div className="bg-zinc-950 min-h-screen text-white flex font-sans">
+      <Sidebar user={user} />
+      <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
+        <div className="animate-fade-in">
+          {user.role === 'admin' && <AdminDashboard />}
+          {user.role === 'barber' && <BarberDashboard />}
+        </div>
+      </main>
+    </div>
   );
 }
