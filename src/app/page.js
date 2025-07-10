@@ -76,8 +76,9 @@ export default async function Home() {
             ))}
           </div>
           
-          {/* ===== BOTÃO REINSERIDO E CORRIGIDO AQUI ===== */}
-          {allServices.length > 3 && (
+          {/* ===== CORREÇÃO APLICADA AQUI ===== */}
+          {/* O botão agora aparece se houver QUALQUER serviço, não apenas mais de 3 */}
+          {allServices.length > 0 && (
             <div className="text-center mt-16 animate-slide-up-fade-in" style={{ animationDelay: `${3 * 150}ms` }}>
               <Link href="/servicos" className="font-bold border border-zinc-700 text-zinc-300 py-3 px-10 rounded-full hover:bg-zinc-900 hover:border-amber-500 hover:text-amber-400 transition-all duration-300">
                 Ver todos os serviços
