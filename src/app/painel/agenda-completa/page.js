@@ -1,10 +1,10 @@
 // src/app/painel/agenda-completa/page.js
-'use client';
+'use client'; // <-- ESTA É A CORREÇÃO
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Calendar as CalendarIcon, Filter, AlertCircle, RefreshCw } from 'lucide-react';
-import { Sidebar } from '../../../components/painel/Sidebar';
+import { Sidebar } from '@/components/painel/Sidebar'; // Caminho corrigido para o alias
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import { DayPicker } from 'react-day-picker';
@@ -27,12 +27,10 @@ export default function AgendaCompletaPage() {
     status: '',
   });
 
-  // Novo estado para controlar a visibilidade do calendário
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const calendarRef = useRef(null);
   const router = useRouter();
 
-  // Função para buscar os dados com base nos filtros
   const fetchAppointments = async () => {
     setIsLoading(true);
     setError('');
@@ -85,7 +83,6 @@ export default function AgendaCompletaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, user]);
 
-  // Efeito para fechar o calendário ao clicar fora dele
   useEffect(() => {
     function handleClickOutside(event) {
       if (calendarRef.current && !calendarRef.current.contains(event.target)) {
@@ -106,7 +103,7 @@ export default function AgendaCompletaPage() {
   
   const handleDateChange = (date) => {
     setFilters(prev => ({ ...prev, date: date || new Date() }));
-    setIsCalendarOpen(false); // Fecha o calendário ao selecionar uma data
+    setIsCalendarOpen(false);
   };
 
   const clearFilters = () => {
@@ -125,7 +122,6 @@ export default function AgendaCompletaPage() {
           <h1 className="font-display font-bold text-4xl text-white">Agenda Completa</h1>
         </div>
 
-        {/* Secção de Filtros Redesenhada */}
         <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800 mb-8 flex flex-col md:flex-row gap-4 items-end">
             <div className="relative w-full md:w-1/4" ref={calendarRef}>
                 <label className="text-xs font-bold text-zinc-400">Data</label>

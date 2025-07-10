@@ -1,9 +1,9 @@
 // src/app/painel/meu-historico/page.js
-'use client';
+'use client'; // <-- ESTA É A CORREÇÃO
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Sidebar } from '../../../components/painel/Sidebar';
+import { Sidebar } from '@/components/painel/Sidebar'; // Caminho corrigido para o alias
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import { History, AlertCircle } from 'lucide-react';
