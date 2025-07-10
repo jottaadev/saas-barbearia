@@ -10,19 +10,12 @@ import { useRouter } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-// Lista de ícones sugeridos para os serviços. 'Beard' foi substituído por 'UserCircle' para evitar erros de build.
 const iconSuggestions = [
-  { name: 'scissors', label: 'Tesoura', Icon: Scissors },
-  { name: 'sparkle', label: 'Brilho', Icon: Sparkle },
-  { name: 'combine', label: 'Combo', Icon: Combine },
-  { name: 'beard', label: 'Barba', Icon: UserCircle },
-  { name: 'utensils', label: 'Navalha', Icon: Utensils },
-  { name: 'brush', label: 'Pincel', Icon: Brush },
-  { name: 'gem', label: 'Premium', Icon: Gem },
-  { name: 'award', label: 'Destaque', Icon: Award },
+  { name: 'scissors', label: 'Tesoura', Icon: Scissors }, { name: 'sparkle', label: 'Brilho', Icon: Sparkle }, { name: 'combine', label: 'Combo', Icon: Combine },
+  { name: 'beard', label: 'Barba', Icon: UserCircle }, { name: 'utensils', label: 'Navalha', Icon: Utensils }, { name: 'brush', label: 'Pincel', Icon: Brush },
+  { name: 'gem', label: 'Premium', Icon: Gem }, { name: 'award', label: 'Destaque', Icon: Award },
 ].filter(icon => icon.Icon);
 
-// Componente do Modal para adicionar/editar serviços
 const ServiceModal = ({ service, onClose, onSave, error }) => {
   const [formData, setFormData] = useState({
     name: service?.name || '',
@@ -87,7 +80,6 @@ const ServiceModal = ({ service, onClose, onSave, error }) => {
   );
 };
 
-// --- Componente Principal da Página ---
 export default function GerirServicosPage() {
   const [user, setUser] = useState(null);
   const [services, setServices] = useState([]);

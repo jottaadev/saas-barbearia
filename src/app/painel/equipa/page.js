@@ -1,18 +1,17 @@
 // src/app/painel/equipa/page.js
 'use client';
 
-export const dynamic = 'force-dynamic';
-
-// CORREÇÃO: Adicionado 'useCallback' à importação
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, AlertCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Sidebar } from '@/components/painel/Sidebar';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+import { getStrapiURL } from '@/lib/utils';
 
-// ... (o resto do arquivo, que já estava correto, permanece aqui)
-// Modal para Adicionar/Editar Membro
+export const dynamic = 'force-dynamic';
+
+// --- Componente Modal para Adicionar/Editar Membro ---
 const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
   const [formData, setFormData] = useState({
     name: barber?.name || '',
@@ -49,7 +48,7 @@ const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
     onSave(data, !!barber);
   };
 
-  const previewUrl = avatarFile ? URL.createObjectURL(avatarFile) : (formData.avatar_url ? `https://backend-barber-5sbe.onrender.com${formData.avatar_url}` : null);
+  const previewUrl = avatarFile ? URL.createObjectURL(avatarFile) : getStrapiURL(formData.avatar_url);
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in" onClick={onClose}>
@@ -80,7 +79,7 @@ const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
           <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={onClose} className="py-2 px-6 rounded-lg bg-zinc-700 hover:bg-zinc-600 font-bold">Cancelar</button>
             <button type="submit" disabled={isSaving} className="py-2 px-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold flex items-center gap-2 disabled:bg-zinc-600">
-                {isSaving ? <><Loader2 className="animate-spin" size={16}/> Salvando...</> : 'Salvar'}
+                {isSaving ? <><Loader2 className="animate-spin" size={16}/> A guardar...</> : 'Guardar'}
             </button>
           </div>
         </form>
@@ -89,6 +88,7 @@ const BarberModal = ({ barber, onClose, onSave, error, isSaving }) => {
   );
 };
 
+// --- Componente Modal de Confirmação para Apagar ---
 const ConfirmationModal = ({ onConfirm, onCancel, isDeleting }) => (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fade-in">
         <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-lg w-full max-w-sm text-center">
@@ -97,14 +97,14 @@ const ConfirmationModal = ({ onConfirm, onCancel, isDeleting }) => (
             <div className="flex gap-4">
                 <button onClick={onCancel} className="w-full py-3 rounded-lg bg-zinc-700 hover:bg-zinc-600 font-bold">Cancelar</button>
                 <button onClick={onConfirm} disabled={isDeleting} className="w-full py-3 rounded-lg bg-red-600 text-white font-bold hover:bg-red-500 flex items-center justify-center gap-2 disabled:bg-red-800">
-                    {isDeleting ? <><Loader2 className="animate-spin" size={16}/> Apagando...</> : 'Sim, apagar'}
+                    {isDeleting ? <><Loader2 className="animate-spin" size={16}/> A apagar...</> : 'Sim, apagar'}
                 </button>
             </div>
         </div>
     </div>
 );
 
-
+// --- Componente Principal da Página ---
 export default function GerirEquipaPage() {
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState([]);
@@ -121,10 +121,10 @@ export default function GerirEquipaPage() {
   const fetchTeam = useCallback(async (token) => {
     setIsLoading(true);
     try {
-      const response = await axios.get('https://backend-barber-5sbe.onrender.com/api/users/profiles', { headers: { 'Authorization': `Bearer ${token}` } });
+      const response = await axios.get(getStrapiURL('/api/users/profiles'), { headers: { 'Authorization': `Bearer ${token}` } });
       setTeam(response.data);
     } catch (err) {
-      setError('Não foi possível carregar a equipe.');
+      setError('Não foi possível carregar a equipa.');
     } finally {
       setIsLoading(false);
     }
@@ -146,7 +146,7 @@ export default function GerirEquipaPage() {
     setModalError('');
     const token = sessionStorage.getItem('authToken');
     const config = { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } };
-    const url = isEditing ? `https://backend-barber-5sbe.onrender.com/api/users/${editingBarber.id}` : 'https://backend-barber-5sbe.onrender.com/api/users';
+    const url = isEditing ? getStrapiURL(`/api/users/${editingBarber.id}`) : getStrapiURL('/api/users');
     const method = isEditing ? 'put' : 'post';
     try {
       await axios[method](url, formData, config);
@@ -154,7 +154,7 @@ export default function GerirEquipaPage() {
       setEditingBarber(null);
       fetchTeam(token);
     } catch (err) {
-      setModalError(err.response?.data?.error || 'Não foi possível salvar.');
+      setModalError(err.response?.data?.error || 'Não foi possível guardar.');
     } finally {
       setIsSaving(false);
     }
@@ -165,7 +165,7 @@ export default function GerirEquipaPage() {
     setError('');
     const token = sessionStorage.getItem('authToken');
     try {
-      await axios.delete(`https://backend-barber-5sbe.onrender.com/api/users/${deletingBarberId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      await axios.delete(getStrapiURL(`/api/users/${deletingBarberId}`), { headers: { 'Authorization': `Bearer ${token}` } });
       fetchTeam(token);
       setDeletingBarberId(null);
     } catch (err) {
@@ -185,17 +185,19 @@ export default function GerirEquipaPage() {
       setDeletingBarberId(barberId);
   }
 
-  if (!user) return <div className="bg-zinc-950 min-h-screen flex items-center justify-center text-white">A verificar...</div>;
+  if (!user) {
+    return <div className="bg-zinc-950 min-h-screen flex items-center justify-center text-white">A verificar...</div>;
+  }
 
   return (
     <div className="bg-zinc-950 min-h-screen text-white flex font-sans">
       <Sidebar user={user} />
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="font-display font-bold text-4xl text-white">Gerir Equipe</h1>
+          <h1 className="font-display font-bold text-4xl text-white">Gerir Equipa</h1>
           <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-amber-500 text-zinc-950 font-bold py-2 px-4 rounded-lg hover:bg-amber-400 transition-colors"><Plus size={20} />Adicionar Membro</button>
         </div>
-        {isLoading && <p>A carregar equipe...</p>}
+        {isLoading && <p>A carregar equipa...</p>}
         {error && <div className="bg-red-900/20 text-red-400 p-4 rounded-lg flex items-center gap-3"><AlertCircle size={20}/> {error}</div>}
         <div className="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden">
           <table className="w-full text-left">
@@ -211,7 +213,7 @@ export default function GerirEquipaPage() {
               {team.map(barber => (
                 <tr key={barber.id} className="border-t border-zinc-800 hover:bg-zinc-800/50">
                   <td className="p-4 font-medium text-white flex items-center gap-3">
-                    <img src={barber.avatar_url ? `https://backend-barber-5sbe.onrender.com${barber.avatar_url}` : '/default-avatar.png'} alt={barber.name} className="rounded-full object-cover w-10 h-10"/>
+                    <img src={getStrapiURL(barber.avatar_url) || '/default-avatar.png'} alt={barber.name} className="rounded-full object-cover w-10 h-10"/>
                     {barber.name}
                   </td>
                   <td className="p-4 text-zinc-300">{barber.username}</td>

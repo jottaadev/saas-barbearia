@@ -35,6 +35,7 @@ export default function PainelPage() {
   }
 
   return (
+    // A estrutura principal agora é apenas 'flex'. A sidebar e o main controlam o seu próprio espaço.
     <div className="bg-zinc-950 min-h-screen text-white flex font-sans">
       <Sidebar user={user} />
       <main className="flex-1 p-6 sm:p-8 overflow-y-auto">

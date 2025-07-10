@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import 'react-day-picker/dist/style.css';
 import { Calendar as CalendarIcon, Lock, Unlock, AlertCircle, Loader2, Plane, Trash2, Bed, Briefcase } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { getStrapiURL } from '@/lib/utils';
 
 export default function MeusHorariosPage() {
     const [user, setUser] = useState(null);
@@ -28,7 +29,7 @@ export default function MeusHorariosPage() {
         setError('');
         try {
             const formattedDate = format(date, 'yyyy-MM-dd');
-            const response = await axios.get(`https://backend-barber-5sbe.onrender.com/api/barber/schedule?date=${formattedDate}`, {
+            const response = await axios.get(getStrapiURL(`/api/barber/schedule?date=${formattedDate}`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setDaySchedule(response.data);
@@ -42,10 +43,10 @@ export default function MeusHorariosPage() {
     const fetchAbsences = useCallback(async (token) => {
         setIsLoading(prev => ({...prev, absences: true}));
         try {
-            const response = await axios.get(`https://backend-barber-5sbe.onrender.com/api/barber/absences`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const response = await axios.get(getStrapiURL(`/api/barber/absences`), { headers: { 'Authorization': `Bearer ${token}` } });
             setAbsences(response.data);
         } catch (err) {
-             setError('Não foi possível carregar suas ausências.');
+             setError('Não foi possível carregar as suas ausências.');
         } finally {
              setIsLoading(prev => ({...prev, absences: false}));
         }
@@ -78,12 +79,11 @@ export default function MeusHorariosPage() {
         setDaySchedule(currentSchedule => currentSchedule.map(s => s.time === slot.time ? {...s, status: 'processando'} : s));
         
         try {
-            const apiUrl = 'https://backend-barber-5sbe.onrender.com';
             if (action === 'block') {
-                await axios.post(`https://backend-barber-5sbe.onrender.com/api/barber/block-slot`, { slot_time: slot.time }, { headers: { 'Authorization': `Bearer ${token}` }});
+                await axios.post(getStrapiURL('/api/barber/block-slot'), { slot_time: slot.time }, { headers: { 'Authorization': `Bearer ${token}` }});
                 toast.success('Horário bloqueado!');
             } else {
-                await axios.delete(`https://backend-barber-5sbe.onrender.com/api/barber/unblock-slot`, { 
+                await axios.delete(getStrapiURL('/api/barber/unblock-slot'), { 
                     headers: { 'Authorization': `Bearer ${token}` },
                     data: { slot_time: slot.time }
                 });
@@ -102,14 +102,13 @@ export default function MeusHorariosPage() {
             return;
         }
         const token = sessionStorage.getItem('authToken');
-        const apiUrl = 'https://backend-barber-5sbe.onrender.com';
         
         const payload = {
             start_date: format(absenceRange.from, 'yyyy-MM-dd'),
             end_date: format(absenceRange.to || absenceRange.from, 'yyyy-MM-dd'),
         };
 
-        const promise = axios.post(`https://backend-barber-5sbe.onrender.com/api/barber/absences`, payload, { headers: { 'Authorization': `Bearer ${token}` } });
+        const promise = axios.post(getStrapiURL('/api/barber/absences'), payload, { headers: { 'Authorization': `Bearer ${token}` } });
         
         toast.promise(promise, {
             loading: 'A registar ausência...',
@@ -125,8 +124,7 @@ export default function MeusHorariosPage() {
     const handleDeleteAbsence = async (absenceId) => {
         if (!window.confirm("Tem a certeza que quer remover este período de ausência?")) return;
         const token = sessionStorage.getItem('authToken');
-        const apiUrl = 'https://backend-barber-5sbe.onrender.com';
-        const promise = axios.delete(`https://backend-barber-5sbe.onrender.com/api/barber/absences/${absenceId}`, { headers: { 'Authorization': `Bearer ${token}` }});
+        const promise = axios.delete(getStrapiURL(`/api/barber/absences/${absenceId}`), { headers: { 'Authorization': `Bearer ${token}` }});
 
         toast.promise(promise, {
             loading: 'A remover ausência...',
@@ -149,7 +147,6 @@ export default function MeusHorariosPage() {
                 <Toaster position="bottom-right" toastOptions={{ style: { background: '#27272a', color: '#fff', border: '1px solid #3f3f46' } }} />
                 <h1 className="font-display font-bold text-4xl text-white">Gerir Disponibilidade</h1>
 
-                {/* Secção de Ausências Redesenhada */}
                 <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
                     <h2 className="font-display font-bold text-2xl text-white mb-4 flex items-center gap-2"><Plane size={24} className="text-amber-500"/> Registar Ausências (Férias)</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
@@ -180,7 +177,6 @@ export default function MeusHorariosPage() {
                     </div>
                 </div>
 
-                {/* Secção da Agenda Diária Redesenhada */}
                 <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
                     <h2 className="font-display font-bold text-2xl text-white mb-4 flex items-center gap-2">
                         <Briefcase size={24} className="text-amber-500"/> Agenda de {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
