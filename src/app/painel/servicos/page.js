@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// CORREÇÃO: Trocado 'Mustache' por 'Beard'
+// Ícone 'Beard' (Barba) é o correto.
 import { Plus, Edit, Trash2, AlertCircle, Scissors, Sparkle, Combine, Gem, Palette, Wind, Beard, Utensils, Brush, Award } from 'lucide-react';
 import { Sidebar } from '@/components/painel/Sidebar';
 import { jwtDecode } from 'jwt-decode';
@@ -13,12 +13,11 @@ export const dynamic = 'force-dynamic';
 
 const iconSuggestions = [
   { name: 'scissors', label: 'Tesoura', Icon: Scissors }, { name: 'sparkle', label: 'Brilho', Icon: Sparkle }, { name: 'combine', label: 'Combo', Icon: Combine },
-  { name: 'beard', label: 'Barba', Icon: Beard }, // CORREÇÃO AQUI
+  { name: 'beard', label: 'Barba', Icon: Beard }, // Usando o nome correto
   { name: 'utensils', label: 'Navalha', Icon: Utensils }, { name: 'brush', label: 'Pincel', Icon: Brush },
   { name: 'gem', label: 'Premium', Icon: Gem }, { name: 'award', label: 'Destaque', Icon: Award },
 ].filter(icon => icon.Icon);
 
-// ... (o resto do arquivo, que já estava correto, permanece aqui)
 const ServiceModal = ({ service, onClose, onSave, error }) => {
   const [formData, setFormData] = useState({
     name: service?.name || '',
