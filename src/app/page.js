@@ -1,35 +1,42 @@
-// src/app/page.js (Versão de Diagnóstico)
+// src/app/page.js
 import { ServiceCard } from '@/components/ServiceCard';
 import { BarberCard } from '@/components/BarberCard';
 import { Footer } from '@/components/Footer';
 import { ArrowDown, Clock, MapPin, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { getStrapiURL } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
 
-// --- DADOS ESTÁTICOS PARA DIAGNÓSTICO ---
-// Removemos a busca de dados real para isolar o problema.
+async function getServices() {
+  try {
+    const response = await fetch(getStrapiURL('/api/services'), { cache: 'no-store' });
+    if (!response.ok) throw new Error('Falha ao buscar serviços');
+    return response.json();
+  } catch (error) {
+    console.error("ERRO AO BUSCAR SERVIÇOS:", error.message);
+    return [];
+  }
+}
 
-const getStaticServices = () => {
-  return [
-    { id: 1, name: 'Corte de Cabelo', description: 'Estilo moderno e clássico, adaptado à sua preferência.', price: '50.00', duration_minutes: 45, icon_name: 'scissors' },
-    { id: 2, name: 'Barba Terapia', description: 'Um tratamento completo para a sua barba com toalhas quentes e óleos essenciais.', price: '40.00', duration_minutes: 30, icon_name: 'beard' },
-    { id: 3, name: 'Cabelo + Barba', description: 'O pacote completo para um visual impecável da cabeça aos ombros.', price: '85.00', duration_minutes: 75, icon_name: 'combine' },
-  ];
-};
-
-const getStaticFeaturedBarbers = () => {
-  return [
-    { id: 1, name: 'Jota', role: 'admin', is_featured: true, avatar_url: null },
-    { id: 2, name: 'Diego', role: 'barber', is_featured: true, avatar_url: null },
-    { id: 3, name: 'Lucas', role: 'barber', is_featured: true, avatar_url: null },
-  ];
-};
-
+async function getFeaturedBarbers() {
+  try {
+    const response = await fetch(getStrapiURL('/api/users/profiles'), { cache: 'no-store' });
+    if (!response.ok) throw new Error('Falha ao buscar perfis');
+    const profiles = await response.json();
+    return profiles.filter(p => p.role === 'barber' && p.is_featured);
+  } catch (error) {
+    console.error("ERRO AO BUSCAR BARBEIROS EM DESTAQUE:", error.message);
+    return [];
+  }
+}
 
 export default function Home() {
-  const allServices = getStaticServices();
-  const featuredBarbers = getStaticFeaturedBarbers();
+  headers(); 
+  
+  const allServices = getServices();
+  const featuredBarbers = getFeaturedBarbers();
   const featuredServices = allServices.slice(0, 3);
 
   return (
@@ -91,6 +98,7 @@ export default function Home() {
               featuredBarbers.map((barber, index) => (
                 <div key={barber.id} className="animate-slide-up-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
                   <BarberCard 
+                    // A lógica aqui agora é segura: getStrapiURL pode receber null sem quebrar.
                     imageSrc={getStrapiURL(barber.avatar_url) || '/default-avatar.png'}
                     name={barber.name} 
                     specialty={barber.role === 'admin' ? 'Fundador' : 'Barbeiro Especialista'}
@@ -115,7 +123,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
                 <div className="lg:col-span-3 h-80 lg:h-[500px]">
                   <iframe 
-                    src="http://googleusercontent.com/maps.google.com/6"
+                    src="http://googleusercontent.com/maps.google.com/7"
                     width="100%" 
                     height="100%" 
                     style={{ border:0 }} 
@@ -149,7 +157,7 @@ export default function Home() {
                           href="https://wa.me/5511987654321" target="_blank" rel="noopener noreferrer"
                           className="w-full inline-flex items-center justify-center gap-3 font-bold bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-500 transition-all duration-300 transform hover:scale-105"
                         >
-                          <MessageCircle size={20} /> Entrar em Contacto
+                          <MessageCircle size={20} /> Entrar em Contato
                         </a>
                    </div>
                 </div>
