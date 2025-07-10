@@ -4,11 +4,12 @@ const API_URL = 'https://backend-barber-5sbe.onrender.com';
 
 /**
  * Constrói de forma segura a URL completa para um recurso da API.
- * @param {string | null | undefined} path - O caminho do recurso.
+ * @param {string | null | undefined} path - O caminho do recurso (ex: /uploads/avatar.png).
  * @returns {string} A URL completa e correta, ou uma string vazia se o caminho for inválido.
  */
 export function getStrapiURL(path = '') {
   // Se o caminho for nulo, indefinido ou uma string vazia, retorna uma string vazia.
+  // Esta é a correção para o erro 'Cannot read properties of null'.
   if (!path) {
     return '';
   }

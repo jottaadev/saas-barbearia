@@ -13,7 +13,7 @@ async function getServices() {
   try {
     const response = await fetch(getStrapiURL('/api/services'), { cache: 'no-store' });
     if (!response.ok) throw new Error('Falha ao buscar serviços');
-    return response.json();
+    return await response.json();
   } catch (error) {
     console.error("ERRO AO BUSCAR SERVIÇOS:", error.message);
     return [];
@@ -24,19 +24,21 @@ async function getFeaturedBarbers() {
   try {
     const response = await fetch(getStrapiURL('/api/users/profiles'), { cache: 'no-store' });
     if (!response.ok) throw new Error('Falha ao buscar perfis');
-    const profiles = await response.json();
-    return profiles.filter(p => p.role === 'barber' && p.is_featured);
+    return await response.json();
   } catch (error) {
-    console.error("ERRO AO BUSCAR BARBEIROS EM DESTAQUE:", error.message);
+    console.error("ERRO AO BUSCAR BARBEIROS:", error.message);
     return [];
   }
 }
 
-export default function Home() {
+export default async function Home() {
   headers(); 
   
-  const allServices = getServices();
-  const featuredBarbers = getFeaturedBarbers();
+  const allServices = await getServices();
+  // Corrigido para aguardar a resolução da promise
+  const allBarbers = await getFeaturedBarbers(); 
+  
+  const featuredBarbers = allBarbers.filter(p => p.role === 'barber' && p.is_featured);
   const featuredServices = allServices.slice(0, 3);
 
   return (
@@ -98,7 +100,6 @@ export default function Home() {
               featuredBarbers.map((barber, index) => (
                 <div key={barber.id} className="animate-slide-up-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
                   <BarberCard 
-                    // A lógica aqui agora é segura: getStrapiURL pode receber null sem quebrar.
                     imageSrc={getStrapiURL(barber.avatar_url) || '/default-avatar.png'}
                     name={barber.name} 
                     specialty={barber.role === 'admin' ? 'Fundador' : 'Barbeiro Especialista'}
@@ -123,7 +124,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
                 <div className="lg:col-span-3 h-80 lg:h-[500px]">
                   <iframe 
-                    src="http://googleusercontent.com/maps.google.com/7"
+                    src="http://googleusercontent.com/maps.google.com/8"
                     width="100%" 
                     height="100%" 
                     style={{ border:0 }} 
@@ -157,7 +158,7 @@ export default function Home() {
                           href="https://wa.me/5511987654321" target="_blank" rel="noopener noreferrer"
                           className="w-full inline-flex items-center justify-center gap-3 font-bold bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-500 transition-all duration-300 transform hover:scale-105"
                         >
-                          <MessageCircle size={20} /> Entrar em Contato
+                          <MessageCircle size={20} /> Entrar em Contacto
                         </a>
                    </div>
                 </div>
