@@ -4,23 +4,15 @@ import { BarberCard } from '@/components/BarberCard';
 import { Footer } from '@/components/Footer';
 import { ArrowDown } from 'lucide-react';
 import Link from 'next/link';
-import { headers } from 'next/headers'; // Importa a função 'headers'
+import { headers } from 'next/headers';
+import { getStrapiURL } from '@/lib/utils'; // 1. Importar o nosso novo helper
 
-// Sinaliza para o Next.js que esta página deve ser sempre dinâmica.
 export const dynamic = 'force-dynamic';
 
-// --- Funções de busca de dados ---
-
-// Cada função usará 'fetch' com a opção de cache desativada para garantir
-// que os dados sejam sempre buscados novamente.
 async function getServices() {
   try {
-    const response = await fetch('https://backend-barber-5sbe.onrender.com/api/services', {
-      cache: 'no-store' 
-    });
-    if (!response.ok) {
-        throw new Error(`Falha ao buscar serviços: ${response.statusText}`);
-    }
+    const response = await fetch(getStrapiURL('/api/services'), { cache: 'no-store' });
+    if (!response.ok) throw new Error('Falha ao buscar serviços');
     return response.json();
   } catch (error) {
     console.error("ERRO AO BUSCAR SERVIÇOS:", error.message);
@@ -30,12 +22,8 @@ async function getServices() {
 
 async function getFeaturedBarbers() {
   try {
-    const response = await fetch('https://backend-barber-5sbe.onrender.com/api/users/profiles', {
-        cache: 'no-store'
-    });
-    if (!response.ok) {
-        throw new Error(`Falha ao buscar perfis: ${response.statusText}`);
-    }
+    const response = await fetch(getStrapiURL('/api/users/profiles'), { cache: 'no-store' });
+    if (!response.ok) throw new Error('Falha ao buscar perfis');
     const profiles = await response.json();
     return profiles.filter(p => p.role === 'barber' && p.is_featured);
   } catch (error) {
@@ -44,19 +32,17 @@ async function getFeaturedBarbers() {
   }
 }
 
-// --- Componente Principal da Página ---
 export default async function Home() {
-  // A chamada da função headers() aqui reforça que a página é dinâmica.
   headers(); 
   
   const allServices = await getServices();
   const featuredBarbers = await getFeaturedBarbers();
-  
   const featuredServices = allServices.slice(0, 3);
 
   return (
     <main className="font-sans bg-black text-white min-h-screen flex-col items-center">
       
+      {/* Seção Hero */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 hero-bg hero-gradient">
         <div className="relative z-10 flex flex-col items-center gap-5" style={{ animation: 'hero-text-fade-in 1s 0.2s ease-out forwards', opacity: 0 }}>
           <span className="font-display text-amber-400 uppercase tracking-widest text-sm">Desde 2024</span>
@@ -75,6 +61,7 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Seção Serviços */}
       <section id="servicos" className="py-28 px-6 bg-black">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 animate-slide-up-fade-in">
@@ -90,7 +77,6 @@ export default async function Home() {
               </div>
             ))}
           </div>
-          
           {allServices.length > 3 && (
             <div className="text-center mt-16 animate-slide-up-fade-in" style={{ animationDelay: `${3 * 150}ms` }}>
               <Link href="/servicos" className="font-bold border border-zinc-700 text-zinc-300 py-3 px-10 rounded-full hover:bg-zinc-900 hover:border-amber-500 hover:text-amber-400 transition-all duration-300">
@@ -101,6 +87,7 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Seção Equipe */}
       <section id="equipe" className="py-28 px-6 bg-zinc-950">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 animate-slide-up-fade-in">
@@ -114,7 +101,8 @@ export default async function Home() {
               featuredBarbers.map((barber, index) => (
                 <div key={barber.id} className="animate-slide-up-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
                   <BarberCard 
-                    imageSrc={barber.avatar_url ? `https://backend-barber-5sbe.onrender.com${barber.avatar_url}` : '/default-avatar.png'}
+                    // 2. Usar o helper para construir a URL da imagem
+                    imageSrc={getStrapiURL(barber.avatar_url) || '/default-avatar.png'}
                     name={barber.name} 
                     specialty={barber.role === 'admin' ? 'Fundador' : 'Barbeiro Especialista'}
                   />
