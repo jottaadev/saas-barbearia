@@ -1,42 +1,35 @@
-// src/app/page.js
+// src/app/page.js (Versão de Diagnóstico)
 import { ServiceCard } from '@/components/ServiceCard';
 import { BarberCard } from '@/components/BarberCard';
 import { Footer } from '@/components/Footer';
-import { ArrowDown, Clock, MapPin, MessageCircle } from 'lucide-react'; // Ícones importados
+import { ArrowDown, Clock, MapPin, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
-import { headers } from 'next/headers';
 import { getStrapiURL } from '@/lib/utils';
 
-export const dynamic = 'force-dynamic';
 
-async function getServices() {
-  try {
-    const response = await fetch(getStrapiURL('/api/services'), { cache: 'no-store' });
-    if (!response.ok) throw new Error('Falha ao buscar serviços');
-    return response.json();
-  } catch (error) {
-    console.error("ERRO AO BUSCAR SERVIÇOS:", error.message);
-    return [];
-  }
-}
+// --- DADOS ESTÁTICOS PARA DIAGNÓSTICO ---
+// Removemos a busca de dados real para isolar o problema.
 
-async function getFeaturedBarbers() {
-  try {
-    const response = await fetch(getStrapiURL('/api/users/profiles'), { cache: 'no-store' });
-    if (!response.ok) throw new Error('Falha ao buscar perfis');
-    const profiles = await response.json();
-    return profiles.filter(p => p.role === 'barber' && p.is_featured);
-  } catch (error) {
-    console.error("ERRO AO BUSCAR BARBEIROS EM DESTAQUE:", error.message);
-    return [];
-  }
-}
+const getStaticServices = () => {
+  return [
+    { id: 1, name: 'Corte de Cabelo', description: 'Estilo moderno e clássico, adaptado à sua preferência.', price: '50.00', duration_minutes: 45, icon_name: 'scissors' },
+    { id: 2, name: 'Barba Terapia', description: 'Um tratamento completo para a sua barba com toalhas quentes e óleos essenciais.', price: '40.00', duration_minutes: 30, icon_name: 'beard' },
+    { id: 3, name: 'Cabelo + Barba', description: 'O pacote completo para um visual impecável da cabeça aos ombros.', price: '85.00', duration_minutes: 75, icon_name: 'combine' },
+  ];
+};
 
-export default async function Home() {
-  headers(); 
-  
-  const allServices = await getServices();
-  const featuredBarbers = await getFeaturedBarbers();
+const getStaticFeaturedBarbers = () => {
+  return [
+    { id: 1, name: 'Jota', role: 'admin', is_featured: true, avatar_url: null },
+    { id: 2, name: 'Diego', role: 'barber', is_featured: true, avatar_url: null },
+    { id: 3, name: 'Lucas', role: 'barber', is_featured: true, avatar_url: null },
+  ];
+};
+
+
+export default function Home() {
+  const allServices = getStaticServices();
+  const featuredBarbers = getStaticFeaturedBarbers();
   const featuredServices = allServices.slice(0, 3);
 
   return (
@@ -111,7 +104,6 @@ export default async function Home() {
         </div>
       </section>
       
-      {/* ===== SECÇÃO DE LOCALIZAÇÃO RESTAURADA E ESTILIZADA ===== */}
       <section id="localizacao" className="py-28 px-6 bg-black">
         <div className="max-w-5xl mx-auto animate-slide-up-fade-in">
             <div className="text-center mb-16">
@@ -123,7 +115,7 @@ export default async function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
                 <div className="lg:col-span-3 h-80 lg:h-[500px]">
                   <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.279237581513!2d-46.65657158440695!3d-23.55883736761524!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59d5b0337d87%3A0x5de06e5f0f38b1f3!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1678886543210!5m2!1spt-BR!2sbr"
+                    src="http://googleusercontent.com/maps.google.com/6"
                     width="100%" 
                     height="100%" 
                     style={{ border:0 }} 
