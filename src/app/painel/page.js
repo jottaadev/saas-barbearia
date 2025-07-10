@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
+import { Sidebar } from '@/components/painel/Sidebar';
 import { PainelLayout } from '@/components/painel/PainelLayout'; // Importe o novo Layout
 import { AdminDashboard } from '@/components/painel/AdminDashboard';
 import { BarberDashboard } from '@/components/painel/BarberDashboard';

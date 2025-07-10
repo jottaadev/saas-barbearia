@@ -1,12 +1,13 @@
 // src/components/painel/Sidebar.js
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { LayoutDashboard, Scissors, Users, Calendar, LogOut, BarChart3, Clock, History, X } from 'lucide-react';
+import { LayoutDashboard, Scissors, Users, Calendar, LogOut, BarChart3, Clock, History, X, Menu } from 'lucide-react';
 
-// Adicionamos as props 'isOpen' e 'setIsOpen'
-export function Sidebar({ user, isOpen, setIsOpen }) {
+export function Sidebar({ user }) {
+  const [isOpen, setIsOpen] = useState(false); // A sidebar agora controla o seu próprio estado
   const router = useRouter();
   const pathname = usePathname();
 
@@ -33,7 +34,16 @@ export function Sidebar({ user, isOpen, setIsOpen }) {
 
   return (
     <>
-      {/* Overlay para ecrãs pequenos. Fecha a sidebar ao clicar fora. */}
+      {/* Botão de Menu Flutuante para Mobile */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="md:hidden p-2 fixed top-4 left-4 z-20 bg-zinc-900 rounded-md border border-zinc-800"
+        aria-label="Abrir menu"
+      >
+        <Menu className="text-white" />
+      </button>
+
+      {/* Overlay que cobre a página quando o menu está aberto em mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-30 md:hidden"
@@ -41,6 +51,7 @@ export function Sidebar({ user, isOpen, setIsOpen }) {
         ></div>
       )}
 
+      {/* A Sidebar em si */}
       <aside
         className={`w-64 bg-zinc-900 p-6 flex flex-col border-r border-zinc-800 
                    fixed top-0 left-0 h-full z-40 transition-transform duration-300 ease-in-out
@@ -52,7 +63,6 @@ export function Sidebar({ user, isOpen, setIsOpen }) {
             <h2 className="font-display font-bold text-xl text-white truncate">{user?.name || 'Utilizador'}</h2>
             <p className="font-sans text-sm text-amber-500 capitalize">{user?.role === 'admin' ? 'Administrador' : 'Barbeiro'}</p>
           </div>
-          {/* Botão para fechar a sidebar em mobile */}
           <button onClick={() => setIsOpen(false)} className="md:hidden p-1">
             <X className="text-zinc-400" />
           </button>
@@ -61,7 +71,7 @@ export function Sidebar({ user, isOpen, setIsOpen }) {
           {links.map(link => {
             const isActive = pathname === link.href;
             return (
-              <Link key={link.href} href={link.href} className={`flex items-center gap-3 rounded-md px-3 py-2.5 font-sans font-medium text-zinc-300 transition-all hover:text-white hover:bg-zinc-800 ${isActive ? 'bg-amber-500/10 text-amber-400' : ''}`}>
+              <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className={`flex items-center gap-3 rounded-md px-3 py-2.5 font-sans font-medium text-zinc-300 transition-all hover:text-white hover:bg-zinc-800 ${isActive ? 'bg-amber-500/10 text-amber-400' : ''}`}>
                 <link.icon className="h-5 w-5" />
                 <span>{link.label}</span>
               </Link>

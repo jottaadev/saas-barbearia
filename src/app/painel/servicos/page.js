@@ -9,6 +9,7 @@ import { Sidebar } from '@/components/painel/Sidebar';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 
+
 export const dynamic = 'force-dynamic';
 
 const iconSuggestions = [
