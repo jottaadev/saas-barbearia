@@ -5,15 +5,13 @@ import { Footer } from '@/components/Footer';
 import { ArrowDown, Clock, MapPin, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { headers } from 'next/headers';
+import { getStrapiURL } from '@/lib/utils';
 
-// Não precisamos mais do utils.js
-// export const dynamic = 'force-dynamic' é mantido para evitar cache
 export const dynamic = 'force-dynamic';
 
 async function getServices() {
   try {
-    // Usando a URL completa diretamente, como antes
-    const response = await fetch('https://backend-barber-5sbe.onrender.com/api/services', { cache: 'no-store' });
+    const response = await fetch(getStrapiURL('/api/services'), { cache: 'no-store' });
     if (!response.ok) throw new Error('Falha ao buscar serviços');
     return await response.json();
   } catch (error) {
@@ -22,13 +20,14 @@ async function getServices() {
   }
 }
 
-async function getBarbers() {
+async function getFeaturedBarbers() {
   try {
-    const response = await fetch('https://backend-barber-5sbe.onrender.com/api/users/profiles', { cache: 'no-store' });
+    const response = await fetch(getStrapiURL('/api/users/profiles'), { cache: 'no-store' });
     if (!response.ok) throw new Error('Falha ao buscar perfis');
-    return await response.json();
+    const profiles = await response.json();
+    return profiles.filter(p => p.role === 'barber' && p.is_featured);
   } catch (error) {
-    console.error("ERRO AO BUSCAR BARBEIROS:", error.message);
+    console.error("ERRO AO BUSCAR BARBEIROS EM DESTAQUE:", error.message);
     return [];
   }
 }
@@ -37,9 +36,7 @@ export default async function Home() {
   headers(); 
   
   const allServices = await getServices();
-  const allBarbers = await getBarbers(); 
-  
-  const featuredBarbers = allBarbers.filter(p => p.role === 'barber' && p.is_featured);
+  const featuredBarbers = await getFeaturedBarbers();
   const featuredServices = allServices.slice(0, 3);
 
   return (
@@ -78,6 +75,8 @@ export default async function Home() {
               </div>
             ))}
           </div>
+          
+          {/* ===== BOTÃO REINSERIDO E CORRIGIDO AQUI ===== */}
           {allServices.length > 3 && (
             <div className="text-center mt-16 animate-slide-up-fade-in" style={{ animationDelay: `${3 * 150}ms` }}>
               <Link href="/servicos" className="font-bold border border-zinc-700 text-zinc-300 py-3 px-10 rounded-full hover:bg-zinc-900 hover:border-amber-500 hover:text-amber-400 transition-all duration-300">
@@ -101,10 +100,7 @@ export default async function Home() {
               featuredBarbers.map((barber, index) => (
                 <div key={barber.id} className="animate-slide-up-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
                   <BarberCard 
-                    // ===== A CORREÇÃO ESTÁ AQUI =====
-                    // Verificamos se 'barber.avatar_url' existe. Se sim, montamos a URL.
-                    // Se não, passamos a imagem padrão.
-                    imageSrc={barber.avatar_url ? `https://backend-barber-5sbe.onrender.com${barber.avatar_url}` : '/default-avatar.png'}
+                    imageSrc={getStrapiURL(barber.avatar_url) || '/default-avatar.png'}
                     name={barber.name} 
                     specialty={barber.role === 'admin' ? 'Fundador' : 'Barbeiro Especialista'}
                   />
